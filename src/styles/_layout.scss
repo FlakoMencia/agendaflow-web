@@ -1,0 +1,233 @@
+.bootstrap-shell {
+  width: min(100% - 2rem, var(--af-content-width));
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 4vw, 3rem) 1.5rem;
+}
+
+.bootstrap-hero {
+  overflow: hidden;
+  min-height: 31rem;
+  padding: clamp(1.25rem, 5vw, 4.5rem);
+  border: 1px solid var(--af-border);
+  border-radius: var(--af-radius-lg);
+  background:
+    radial-gradient(circle at 90% 10%, rgb(204 251 241 / 0.72), transparent 34%),
+    var(--af-surface);
+  box-shadow: var(--af-shadow-md);
+}
+
+.brand-line {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.brand-mark {
+  display: grid;
+  width: 2.25rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: var(--af-primary-600);
+  color: white;
+  font-weight: 800;
+}
+
+.hero-copy {
+  display: flex;
+  max-width: 46rem;
+  margin-top: clamp(5rem, 12vw, 9rem);
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.hero-copy h1 {
+  max-width: 42rem;
+  margin-block: 1.25rem 0.9rem;
+  font-size: clamp(2.4rem, 6vw, 4.75rem);
+  font-weight: 720;
+  line-height: 1.02;
+}
+
+.hero-subtitle {
+  margin-bottom: 1.75rem;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+}
+
+.service-section {
+  padding-block: clamp(4rem, 8vw, 7rem) 3rem;
+}
+
+.section-heading {
+  display: flex;
+  gap: 2rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+}
+
+.section-heading h2,
+.technical-panel h2 {
+  margin-bottom: 0;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.section-heading > p {
+  max-width: 34rem;
+  margin-bottom: 0;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.service-card {
+  height: 100%;
+  border: 1px solid var(--af-border);
+  box-shadow: var(--af-shadow-sm);
+}
+
+.service-card--current {
+  border-top: 3px solid var(--af-primary-600);
+}
+
+.service-card__title {
+  margin: 0;
+  color: var(--af-text);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.service-card__icon {
+  display: grid;
+  width: 3rem;
+  aspect-ratio: 1;
+  margin: 1.25rem 1.25rem 0;
+  place-items: center;
+  border-radius: var(--af-radius-sm);
+  font-size: 1.2rem;
+}
+
+.service-card__icon--api {
+  background: #e0f2fe;
+  color: var(--af-accent);
+}
+
+.service-card__icon--web {
+  background: var(--af-primary-100);
+  color: var(--af-primary-700);
+}
+
+.service-card__icon--notification {
+  background: #fef3c7;
+  color: var(--af-warning);
+}
+
+.technical-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 8vw, 7rem);
+  padding-block: clamp(3rem, 7vw, 6rem);
+}
+
+.technical-list {
+  margin: 0;
+  border-top: 1px solid var(--af-border);
+}
+
+.technical-list > div {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 1rem;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--af-border);
+}
+
+.technical-list dt {
+  color: var(--af-text-muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.technical-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.bootstrap-footer {
+  display: flex;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--af-border);
+  color: var(--af-text-muted);
+  font-size: 0.875rem;
+  justify-content: space-between;
+}
+
+.not-found-shell {
+  display: grid;
+  width: min(100% - 2rem, 42rem);
+  min-height: 100dvh;
+  margin-inline: auto;
+  align-content: center;
+  justify-items: start;
+}
+
+.not-found-shell h1 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(2.4rem, 8vw, 4.5rem);
+}
+
+.return-link {
+  display: inline-flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--af-radius-sm);
+  background: var(--af-primary-600);
+  color: white;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.return-link:hover {
+  background: var(--af-primary-700);
+}
+
+@media (max-width: 50rem) {
+  .service-grid,
+  .technical-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 34rem) {
+  .bootstrap-shell {
+    width: min(100% - 1rem, var(--af-content-width));
+  }
+
+  .bootstrap-hero {
+    min-height: 35rem;
+  }
+
+  .technical-list > div {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .bootstrap-footer {
+    gap: 0.4rem;
+    flex-direction: column;
+  }
+}

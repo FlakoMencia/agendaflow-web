@@ -1,0 +1,100 @@
+<main class="bootstrap-shell">
+  <header class="bootstrap-hero" aria-labelledby="page-title">
+    <div class="brand-line" aria-label="AgendaFlow">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span>AgendaFlow</span>
+    </div>
+
+    <div class="hero-copy">
+      <p-tag value="Fase 0 — Bootstrap" icon="pi pi-wrench" severity="secondary" />
+      <h1 id="page-title">Una base serena para organizar cada cita.</h1>
+      <p class="hero-subtitle">Plataforma de reservas y gestión de citas.</p>
+      <p-button
+        label="Vista técnica disponible próximamente"
+        icon="pi pi-arrow-right"
+        [disabled]="true"
+        ariaLabel="Ejemplo visual sin acción de negocio"
+      />
+    </div>
+  </header>
+
+  <section class="service-section" aria-labelledby="services-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Ecosistema</p>
+        <h2 id="services-title">Tres piezas, una plataforma</h2>
+      </div>
+      <p>La Fase 0 establece contratos técnicos sin adelantar funcionalidad de negocio.</p>
+    </div>
+
+    <div class="service-grid">
+      <p-card class="service-card">
+        <ng-template #header>
+          <div class="service-card__icon service-card__icon--api" aria-hidden="true">
+            <i class="pi pi-server"></i>
+          </div>
+        </ng-template>
+        <ng-template #title><h3 class="service-card__title">Spring Boot API</h3></ng-template>
+        <ng-template #subtitle>Backend principal · Puerto 8080</ng-template>
+        <p>Base prevista para la API REST y la coordinación de los dominios de AgendaFlow.</p>
+      </p-card>
+
+      <p-card class="service-card service-card--current">
+        <ng-template #header>
+          <div class="service-card__icon service-card__icon--web" aria-hidden="true">
+            <i class="pi pi-desktop"></i>
+          </div>
+        </ng-template>
+        <ng-template #title><h3 class="service-card__title">Angular Web</h3></ng-template>
+        <ng-template #subtitle>Frontend actual · Puerto 4200</ng-template>
+        <p>Workspace standalone con routing, PrimeNG Community y fundamentos accesibles.</p>
+      </p-card>
+
+      <p-card class="service-card">
+        <ng-template #header>
+          <div class="service-card__icon service-card__icon--notification" aria-hidden="true">
+            <i class="pi pi-bell"></i>
+          </div>
+        </ng-template>
+        <ng-template #title>
+          <h3 class="service-card__title">Quarkus Notification Service</h3>
+        </ng-template>
+        <ng-template #subtitle>Microservicio futuro · Puerto 8081</ng-template>
+        <p>Base destinada al procesamiento de notificaciones en fases posteriores.</p>
+      </p-card>
+    </div>
+  </section>
+
+  <p-divider />
+
+  <section class="technical-panel" aria-labelledby="technical-title">
+    <div>
+      <p class="eyebrow">Preparado para evolucionar</p>
+      <h2 id="technical-title">Información técnica</h2>
+      <p>
+        El bootstrap mantiene una superficie pequeña, tipada y verificable antes de incorporar
+        flujos reales.
+      </p>
+    </div>
+
+    <dl class="technical-list">
+      <div>
+        <dt>Aplicación</dt>
+        <dd>Angular 22 standalone</dd>
+      </div>
+      <div>
+        <dt>API de desarrollo</dt>
+        <dd><code>http://localhost:8080/api/v1</code></dd>
+      </div>
+      <div>
+        <dt>Sistema visual</dt>
+        <dd>PrimeNG Community · Aura personalizado</dd>
+      </div>
+    </dl>
+  </section>
+
+  <footer class="bootstrap-footer">
+    <span>AgendaFlow</span>
+    <span>Base técnica y visual · Fase 0</span>
+  </footer>
+</main>
