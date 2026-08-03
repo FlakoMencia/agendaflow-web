@@ -1,0 +1,169 @@
+<section class="feature-page" aria-labelledby="organization-detail-title">
+  <app-page-header
+    title="Organization details"
+    headingId="organization-detail-title"
+    description="Review identity, contact, location and booking configuration."
+    [breadcrumbs]="['Workspace', 'Organizations', 'Details']"
+  >
+    @if (organization(); as currentOrganization) {
+      <div pageActions class="header-actions">
+        <a
+          pButton
+          class="secondary-action"
+          [routerLink]="['/organizations', currentOrganization.id, 'branches']"
+        >
+          <i class="pi pi-map-marker" aria-hidden="true"></i><span>Branches</span>
+        </a>
+        <a
+          pButton
+          class="primary-action"
+          [routerLink]="['/organizations', currentOrganization.id, 'edit']"
+        >
+          <i class="pi pi-pencil" aria-hidden="true"></i><span>Edit</span>
+        </a>
+      </div>
+    }
+  </app-page-header>
+
+  @if (saved === 'created') {
+    <p-message severity="success">Organization created successfully.</p-message>
+  } @else if (saved === 'updated') {
+    <p-message severity="success">Organization updated successfully.</p-message>
+  }
+
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading organization</strong>
+    </div>
+  } @else if (error(); as loadError) {
+    <div class="state-stack" role="alert">
+      <p-message severity="error">{{ loadError.message }}</p-message>
+      <button pButton type="button" class="secondary-action" (click)="retry()">
+        <i class="pi pi-refresh" aria-hidden="true"></i><span>Retry</span>
+      </button>
+    </div>
+  } @else if (organization(); as currentOrganization) {
+    <article class="detail-surface">
+      <div class="detail-identity">
+        <div>
+          <p class="eyebrow">Organization #{{ currentOrganization.id }}</p>
+          <h2>{{ currentOrganization.legalName }}</h2>
+          <p>{{ value(currentOrganization.tradeName) }}</p>
+        </div>
+        <app-status-badge [status]="statusState(currentOrganization.status)" />
+      </div>
+
+      <div class="detail-grid">
+        <section>
+          <h3>Identity</h3>
+          <dl class="detail-list">
+            <div>
+              <dt>Legal name</dt>
+              <dd>{{ currentOrganization.legalName }}</dd>
+            </div>
+            <div>
+              <dt>Trade name</dt>
+              <dd>{{ value(currentOrganization.tradeName) }}</dd>
+            </div>
+            <div>
+              <dt>Tax identifier</dt>
+              <dd>{{ value(currentOrganization.taxIdentifier) }}</dd>
+            </div>
+            <div>
+              <dt>Organization type</dt>
+              <dd>{{ value(currentOrganization.organizationType) }}</dd>
+            </div>
+          </dl>
+        </section>
+        <section>
+          <h3>Contact</h3>
+          <dl class="detail-list">
+            <div>
+              <dt>Email</dt>
+              <dd>{{ value(currentOrganization.email) }}</dd>
+            </div>
+            <div>
+              <dt>Phone</dt>
+              <dd>{{ value(currentOrganization.phone) }}</dd>
+            </div>
+            <div>
+              <dt>Website</dt>
+              <dd>{{ value(currentOrganization.website) }}</dd>
+            </div>
+          </dl>
+        </section>
+        <section>
+          <h3>Location</h3>
+          <dl class="detail-list">
+            <div>
+              <dt>Address</dt>
+              <dd>{{ value(currentOrganization.addressLine1) }}</dd>
+            </div>
+            <div>
+              <dt>Address line 2</dt>
+              <dd>{{ value(currentOrganization.addressLine2) }}</dd>
+            </div>
+            <div>
+              <dt>City / state</dt>
+              <dd>
+                {{ value(currentOrganization.city) }} / {{ value(currentOrganization.stateCode) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Postal / country</dt>
+              <dd>
+                {{ value(currentOrganization.postalCode) }} / {{ currentOrganization.countryCode }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+        <section>
+          <h3>Regional settings</h3>
+          <dl class="detail-list">
+            <div>
+              <dt>Timezone</dt>
+              <dd>{{ currentOrganization.timezone }}</dd>
+            </div>
+            <div>
+              <dt>Currency</dt>
+              <dd>{{ currentOrganization.currencyCode }}</dd>
+            </div>
+            <div>
+              <dt>Language</dt>
+              <dd>{{ currentOrganization.languageCode }}</dd>
+            </div>
+          </dl>
+        </section>
+        <section class="detail-grid__wide">
+          <h3>Booking configuration</h3>
+          <dl class="detail-list detail-list--columns">
+            <div>
+              <dt>Public booking</dt>
+              <dd>{{ yesNo(currentOrganization.allowsPublicBooking) }}</dd>
+            </div>
+            <div>
+              <dt>Guest booking</dt>
+              <dd>{{ yesNo(currentOrganization.allowsGuestBooking) }}</dd>
+            </div>
+            <div>
+              <dt>Requires confirmation</dt>
+              <dd>{{ yesNo(currentOrganization.requiresAppointmentConfirmation) }}</dd>
+            </div>
+            <div>
+              <dt>Minimum notice</dt>
+              <dd>{{ currentOrganization.minimumBookingNoticeMinutes }} minutes</dd>
+            </div>
+            <div>
+              <dt>Booking horizon</dt>
+              <dd>{{ currentOrganization.maximumBookingDaysAhead }} days</dd>
+            </div>
+            <div>
+              <dt>Cancellation notice</dt>
+              <dd>{{ currentOrganization.cancellationNoticeMinutes }} minutes</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </article>
+  }
+</section>

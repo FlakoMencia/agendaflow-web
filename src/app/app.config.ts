@@ -1,4 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 
@@ -9,6 +10,7 @@ import { API_CONFIG, DEVELOPMENT_API_CONFIG } from './core/config/api.config';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideHttpClient(),
     provideRouter(routes),
     providePrimeNG({
       ripple: true,
@@ -18,5 +20,5 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     { provide: API_CONFIG, useValue: DEVELOPMENT_API_CONFIG },
-  ]
+  ],
 };

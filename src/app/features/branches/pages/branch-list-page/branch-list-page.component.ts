@@ -1,0 +1,119 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { finalize, forkJoin } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { TableModule } from 'primeng/table';
+
+import { ApiError } from '../../../../core/http/api-error.model';
+import { mapApiError } from '../../../../core/http/api-error.mapper';
+import { Organization } from '../../../organizations/models/organization.model';
+import { OrganizationsApiService } from '../../../organizations/services/organizations-api.service';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
+import { Branch } from '../../models/branch.model';
+import { BranchesApiService } from '../../services/branches-api.service';
+
+@Component({
+  selector: 'app-branch-list-page',
+  imports: [
+    ButtonModule,
+    EmptyStateComponent,
+    MessageModule,
+    PageHeaderComponent,
+    PaginatorModule,
+    RouterLink,
+    StatusBadgeComponent,
+    TableModule,
+  ],
+  templateUrl: './branch-list-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class BranchListPageComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly organizationsApi = inject(OrganizationsApiService);
+  private readonly branchesApi = inject(BranchesApiService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly organizationId = Number(this.route.snapshot.paramMap.get('organizationId'));
+  readonly saved = this.route.snapshot.queryParamMap.get('saved');
+  readonly organization = signal<Organization | null>(null);
+  readonly branches = signal<Branch[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal<ApiError | null>(null);
+  readonly page = signal(0);
+  readonly size = signal(20);
+  readonly totalElements = signal(0);
+
+  ngOnInit(): void {
+    this.loadBranches();
+  }
+
+  retry(): void {
+    this.loadBranches(this.page());
+  }
+
+  onPageChange(event: PaginatorState): void {
+    this.size.set(event.rows ?? this.size());
+    this.loadBranches(event.page ?? 0);
+  }
+
+  location(branch: Branch): string {
+    return [branch.addressLine1, branch.city, branch.stateCode, branch.countryCode]
+      .filter((value): value is string => Boolean(value))
+      .join(', ');
+  }
+
+  private loadBranches(page = 0): void {
+    if (!Number.isSafeInteger(this.organizationId) || this.organizationId <= 0) {
+      this.loading.set(false);
+      this.error.set(invalidOrganizationId());
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+    forkJoin({
+      organization: this.organizationsApi.get(this.organizationId),
+      branches: this.branchesApi.list(this.organizationId, {
+        page,
+        size: this.size(),
+        sort: 'name,asc',
+      }),
+    })
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: ({ organization, branches }) => {
+          this.organization.set(organization);
+          this.branches.set([...branches.content]);
+          this.page.set(branches.page);
+          this.size.set(branches.size);
+          this.totalElements.set(branches.totalElements);
+        },
+        error: (error: unknown) => this.error.set(mapApiError(error)),
+      });
+  }
+}
+
+function invalidOrganizationId(): ApiError {
+  return {
+    timestamp: null,
+    status: 400,
+    code: 'INVALID_ORGANIZATION_ID',
+    message: 'The organization identifier is invalid.',
+    path: null,
+  };
+}

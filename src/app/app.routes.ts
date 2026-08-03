@@ -29,6 +29,62 @@ export const routes: Routes = [
         loadComponent: loadModulePlaceholder,
       },
       {
+        path: 'organizations',
+        title: 'Organizations | AgendaFlow',
+        loadComponent: () =>
+          import('./features/organizations/pages/organization-list-page/organization-list-page.component').then(
+            ({ OrganizationListPageComponent }) => OrganizationListPageComponent,
+          ),
+      },
+      {
+        path: 'organizations/new',
+        title: 'New organization | AgendaFlow',
+        loadComponent: () =>
+          import('./features/organizations/pages/organization-form-page/organization-form-page.component').then(
+            ({ OrganizationFormPageComponent }) => OrganizationFormPageComponent,
+          ),
+      },
+      {
+        path: 'organizations/:organizationId',
+        title: 'Organization details | AgendaFlow',
+        loadComponent: () =>
+          import('./features/organizations/pages/organization-detail-page/organization-detail-page.component').then(
+            ({ OrganizationDetailPageComponent }) => OrganizationDetailPageComponent,
+          ),
+      },
+      {
+        path: 'organizations/:organizationId/edit',
+        title: 'Edit organization | AgendaFlow',
+        loadComponent: () =>
+          import('./features/organizations/pages/organization-form-page/organization-form-page.component').then(
+            ({ OrganizationFormPageComponent }) => OrganizationFormPageComponent,
+          ),
+      },
+      {
+        path: 'organizations/:organizationId/branches',
+        title: 'Branches | AgendaFlow',
+        loadComponent: () =>
+          import('./features/branches/pages/branch-list-page/branch-list-page.component').then(
+            ({ BranchListPageComponent }) => BranchListPageComponent,
+          ),
+      },
+      {
+        path: 'organizations/:organizationId/branches/new',
+        title: 'New branch | AgendaFlow',
+        loadComponent: () =>
+          import('./features/branches/pages/branch-form-page/branch-form-page.component').then(
+            ({ BranchFormPageComponent }) => BranchFormPageComponent,
+          ),
+      },
+      {
+        path: 'organizations/:organizationId/branches/:branchId/edit',
+        title: 'Edit branch | AgendaFlow',
+        loadComponent: () =>
+          import('./features/branches/pages/branch-form-page/branch-form-page.component').then(
+            ({ BranchFormPageComponent }) => BranchFormPageComponent,
+          ),
+      },
+      {
         path: 'appointments',
         title: 'Appointments | AgendaFlow',
         data: {

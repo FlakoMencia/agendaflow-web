@@ -1,27 +1,29 @@
 # AgendaFlow Web
 
-Frontend de AgendaFlow, una plataforma SaaS multiempresa para reservas y gestión de citas. Este
-repositorio será responsable de la experiencia web de administradores, gerentes, recepcionistas,
-especialistas y clientes.
+Frontend Angular de AgendaFlow, una plataforma SaaS multiempresa para reservas y gestión de citas.
+Este repositorio ofrece la experiencia web de administración y consume la API principal de
+AgendaFlow.
 
 ## Estado
 
-**Fase 1 — Sistema visual y application shell.** El workspace dispone de navegación responsive,
-rutas técnicas lazy, componentes visuales compartidos y una base accesible. Los módulos de negocio
-todavía no están implementados.
+**Fase 2 — Organizaciones y sucursales.** El primer módulo funcional permite listar, crear,
+consultar y editar organizaciones, además de listar, crear y editar sus sucursales. La aplicación
+mantiene el application shell responsive de la fase anterior y todavía no implementa
+autenticación.
 
 ## Stack
 
 - Node.js 24.18.1 y npm 11.16.0.
-- Angular y Angular CLI 22.0.x, con TypeScript administrado por Angular.
-- Aplicación standalone, Angular Router, strict mode y SCSS.
-- PrimeNG Community 22.0.0, `@primeuix/themes` 3.0.0 y PrimeIcons 8.0.0.
-- Vitest mediante el builder oficial de pruebas de Angular 22.
+- Angular y Angular CLI 22.0.x, TypeScript administrado por Angular, strict mode y componentes
+  standalone.
+- Angular Router, Reactive Forms, Signals y `HttpClient` oficiales.
+- PrimeNG Community 22.0.0, `@primeuix/themes` 3.0.0, preset Aura y PrimeIcons 8.0.0.
+- SCSS y Vitest mediante los builders oficiales de Angular 22.
 
 ## Requisitos e instalación
 
-Se requieren exactamente Node.js 24.18.1 y npm 11.16.0. Se recomienda un administrador de
-versiones como NVM; `.nvmrc` permite seleccionar la versión del proyecto:
+Se requieren exactamente Node.js 24.18.1 y npm 11.16.0. Se recomienda NVM; `.nvmrc` contiene la
+versión del proyecto.
 
 ```bash
 nvm install 24.18.1
@@ -31,88 +33,94 @@ npm --version
 npm install
 ```
 
-`package-lock.json` debe conservarse para instalaciones reproducibles.
+`package-lock.json` se conserva para instalaciones reproducibles.
 
 ## Desarrollo, pruebas y build
 
 ```bash
 npm start
-npm test
 npm run test:ci
 npm run build
 ```
 
-`npm start` sirve la aplicación en `http://localhost:4200`. `test:ci` ejecuta las pruebas una sola
-vez con `ng test --watch=false`; el build de producción se genera en `dist/`. SSR, SSG y prerender
-permanecen deshabilitados.
+La aplicación se sirve en `http://localhost:4200`. El build de producción se genera en `dist/`;
+SSR, SSG y prerender permanecen deshabilitados.
 
-## Rutas
+## Integración con AgendaFlow API
 
-- `/` redirige a `/dashboard`.
-- `/dashboard`, `/appointments`, `/customers`, `/specialists`, `/services`, `/branches` y
-  `/settings` muestran páginas técnicas dentro del application shell.
-- Cualquier ruta desconocida muestra la página 404.
+La URL de desarrollo es `http://localhost:8080/api/v1` y se proporciona mediante el token tipado
+`API_CONFIG`. Para trabajar localmente, inicia primero `agendaflow-api` en el puerto 8080 y luego
+ejecuta `npm start`. La API debe permitir el origen `http://localhost:4200`; Angular no modifica ni
+elude CORS.
 
-Estas páginas no contienen métricas, tablas ni datos ficticios; cada una identifica explícitamente
-el módulo como trabajo de una fase posterior.
+`OrganizationsApiService` consume los cuatro endpoints de organizaciones y `BranchesApiService`
+consume los cuatro endpoints anidados bajo `/organizations/{organizationId}/branches`. Toda
+operación de sucursal exige `organizationId`; no existe una llamada basada únicamente en
+`branchId`.
 
-## Configuración de API
+Los IDs PostgreSQL `BIGINT`/Java `Long` se representan como `number` mientras permanezcan dentro
+del rango entero seguro de JavaScript (`Number.MAX_SAFE_INTEGER`). No se convierten a UUID.
 
-La URL tipada de desarrollo es `http://localhost:8080/api/v1` y se define mediante un
-`InjectionToken` en `src/app/core/config/api.config.ts`. Aún no existen servicios HTTP ni llamadas
-reales. En fases posteriores, las configuraciones de build proporcionarán valores distintos al
-mismo token sin incorporar una librería para leer `.env`.
+## Rutas funcionales
 
-## Organización
+- `/organizations`
+- `/organizations/new`
+- `/organizations/:organizationId`
+- `/organizations/:organizationId/edit`
+- `/organizations/:organizationId/branches`
+- `/organizations/:organizationId/branches/new`
+- `/organizations/:organizationId/branches/:branchId/edit`
+
+Las rutas técnicas anteriores (`/dashboard`, `/appointments`, `/customers`, `/specialists`,
+`/services`, `/branches` y `/settings`) y la página 404 siguen disponibles. Los módulos aún no
+implementados continúan mostrando placeholders honestos, sin datos simulados.
+
+## Organización del módulo
 
 ```text
 src/app/
-├── core/       # Configuración, application shell e infraestructura transversal
-├── features/   # Límites de funcionalidades futuras, todavía sin lógica de negocio
-└── shared/     # PageHeader, EmptyState y StatusBadge reutilizables
+├── core/
+│   ├── config/       # URL tipada de API y preset visual
+│   ├── http/         # paginación, errores y validación compartida
+│   └── layout/       # application shell
+├── features/
+│   ├── organizations/# modelos, servicio y páginas de organizaciones
+│   └── branches/     # modelos, servicio y páginas anidadas de sucursales
+└── shared/           # PageHeader, EmptyState y StatusBadge
 ```
 
-El shell standalone se compone de topbar, sidebar y contenedor principal. Las páginas se cargan de
-forma diferida desde el router y los componentes se importan directamente, sin `SharedModule`.
+Los listados mantienen Signals explícitas para `loading`, datos y error. Los formularios usan
+Reactive Forms tipados y un estado `saving` que impide dobles envíos. Los errores `400`, `404`,
+`409`, de red e inesperados se transforman en mensajes seguros; no se presentan HTML, JSON crudo,
+stack traces ni detalles internos.
 
 ## Sistema visual y accesibilidad
 
-`AgendaFlowPreset` extiende Aura con design tokens de PrimeNG. La paleta usa teal `#0F766E` y
-`#115E59`, acento `#0284C7`, fondo `#F8FAFC`, superficie blanca, borde `#E2E8F0` y texto
-`#1E293B`. Los tokens SCSS centralizan espaciado, radios, sombras, dimensiones, transiciones, foco y
-breakpoint.
+El tema AgendaFlow extiende Aura con teal, slate, superficies claras y foco visible. Los listados
+usan PrimeNG Table en escritorio y tarjetas equivalentes en móvil para evitar desplazamiento
+horizontal descontrolado. Formularios, breadcrumbs, estados, mensajes y acciones conservan
+landmarks, labels, jerarquía de encabezados, navegación por teclado y `prefers-reduced-motion`.
 
-El diseño combina Grid y Flexbox, tipografía del sistema, superficies sobrias y navegación lateral
-responsive. Incluye enlace para saltar navegación, landmarks, foco visible, controles con nombre
-accesible, operación por teclado y respeto a `prefers-reduced-motion`.
-
-Más detalle en [arquitectura](docs/architecture/README.md) y [sistema visual](docs/ui/README.md).
+Más detalle en [arquitectura](docs/architecture/README.md),
+[desarrollo](docs/development/README.md) y [sistema visual](docs/ui/README.md).
 
 ## PrimeNG Community y licencia
 
-El proyecto usa `primeng@22.0.0` Community y compila sin clave almacenada. No debe crearse una
-licencia ficticia ni guardarse una clave en `environment.ts`, `.env` o Git. Si en el futuro se
-adopta una edición Commercial/LTS, la credencial obtenida legítimamente se proporcionará mediante
-configuración local ignorada y siguiendo la
-[documentación oficial de PrimeNG](https://primeng.org/lts). El bootstrap actual no ejecuta esa
-verificación.
+El proyecto usa la edición Community y compila sin claves. No debe guardarse ninguna licencia en
+Git, `.env` ni archivos de ambiente. Si en el futuro se adopta una edición Commercial/LTS, la
+credencial legítima deberá proporcionarse mediante configuración local ignorada y siguiendo la
+[documentación oficial de PrimeNG](https://primeng.org/lts).
 
-## Documentación y repositorios relacionados
+## Repositorios relacionados
 
-- [Arquitectura](docs/architecture/README.md)
-- [Desarrollo](docs/development/README.md)
-- [Interfaz](docs/ui/README.md)
 - [`agendaflow-api`](../agendaflow-api/README.md) — backend principal.
-- [`agendaflow-notification-service`](../agendaflow-notification-service/README.md) — servicio de
-  notificaciones futuro.
-
-Los enlaces a repositorios hermanos son referencias; este proyecto no los modifica ni depende de
-su ejecución.
+- [`agendaflow-notification-service`](../agendaflow-notification-service/README.md) — microservicio
+  de notificaciones futuro.
 
 ## Aún no implementado
 
-- Login, JWT, guards, interceptores, roles y autorización.
-- Organizaciones, sucursales, especialistas, servicios, clientes y citas.
-- Calendario, dashboard funcional, formularios y CRUD.
-- Integración HTTP, estado global y notificaciones.
-- SSR, PWA, contenedores, despliegue y automatización CI/CD.
+- Login, JWT, guards, interceptor de autenticación, roles y permisos.
+- Clientes, especialistas, catálogo de servicios, citas y calendario.
+- Dashboard funcional, estado global, NgRx o integraciones de notificación.
+- Eliminación de organizaciones o sucursales.
+- SSR, PWA, Docker, despliegue y CI/CD.

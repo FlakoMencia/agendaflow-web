@@ -1,0 +1,397 @@
+<section
+  class="feature-page"
+  [attr.aria-labelledby]="editing ? 'edit-organization-title' : 'new-organization-title'"
+>
+  <app-page-header
+    [title]="editing ? 'Edit organization' : 'New organization'"
+    [headingId]="editing ? 'edit-organization-title' : 'new-organization-title'"
+    [description]="
+      editing
+        ? 'Update the organization information exposed by the AgendaFlow API.'
+        : 'Create an organization before configuring its branches.'
+    "
+    [breadcrumbs]="['Workspace', 'Organizations', editing ? 'Edit' : 'New']"
+  />
+
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading organization</strong>
+    </div>
+  } @else if (!loaded() && error(); as loadError) {
+    <div class="state-stack" role="alert">
+      <p-message severity="error">{{ loadError.message }}</p-message>
+      <a pButton routerLink="/organizations" class="secondary-action"
+        ><i class="pi pi-arrow-left" aria-hidden="true"></i><span>Back to organizations</span></a
+      >
+    </div>
+  } @else {
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (error(); as saveError) {
+        <p-message severity="error">{{ saveError.message }}</p-message>
+      }
+
+      <section class="form-section" aria-labelledby="organization-identity-heading">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Identity</p>
+            <h2 id="organization-identity-heading">Organization profile</h2>
+          </div>
+          <p>Legal and public-facing information.</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field form-field--wide">
+            <label for="legalName">Legal name <span aria-hidden="true">*</span></label>
+            <input
+              pInputText
+              id="legalName"
+              formControlName="legalName"
+              maxlength="180"
+              autocomplete="organization"
+              [attr.aria-invalid]="fieldError('legalName', 'Legal name') ? 'true' : null"
+              aria-describedby="legalName-error"
+            />
+            @if (fieldError('legalName', 'Legal name'); as message) {
+              <small id="legalName-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field form-field--wide">
+            <label for="tradeName">Trade name</label>
+            <input
+              pInputText
+              id="tradeName"
+              formControlName="tradeName"
+              maxlength="180"
+              autocomplete="organization"
+              aria-describedby="tradeName-error"
+            />
+            @if (fieldError('tradeName', 'Trade name'); as message) {
+              <small id="tradeName-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="taxIdentifier">Tax identifier</label>
+            <input
+              pInputText
+              id="taxIdentifier"
+              formControlName="taxIdentifier"
+              maxlength="50"
+              aria-describedby="taxIdentifier-error"
+            />
+            @if (fieldError('taxIdentifier', 'Tax identifier'); as message) {
+              <small id="taxIdentifier-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="organizationType">Organization type</label>
+            <input
+              pInputText
+              id="organizationType"
+              formControlName="organizationType"
+              maxlength="50"
+              aria-describedby="organizationType-error"
+            />
+            @if (fieldError('organizationType', 'Organization type'); as message) {
+              <small id="organizationType-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="status">Status <span aria-hidden="true">*</span></label>
+            <select id="status" formControlName="status">
+              @for (status of statuses; track status) {
+                <option [value]="status">{{ status }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="logoUrl">Logo URL</label>
+            <input
+              pInputText
+              id="logoUrl"
+              formControlName="logoUrl"
+              maxlength="500"
+              inputmode="url"
+              aria-describedby="logoUrl-error"
+            />
+            @if (fieldError('logoUrl', 'Logo URL'); as message) {
+              <small id="logoUrl-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" aria-labelledby="organization-contact-heading">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Contact</p>
+            <h2 id="organization-contact-heading">Contact channels</h2>
+          </div>
+          <p>Optional public contact information.</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="email">Email</label
+            ><input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              maxlength="254"
+              autocomplete="email"
+              aria-describedby="email-error"
+            />
+            @if (fieldError('email', 'Email'); as message) {
+              <small id="email-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="phone">Phone</label
+            ><input
+              pInputText
+              id="phone"
+              type="tel"
+              formControlName="phone"
+              maxlength="30"
+              autocomplete="tel"
+              aria-describedby="phone-error"
+            />
+            @if (fieldError('phone', 'Phone'); as message) {
+              <small id="phone-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field form-field--wide">
+            <label for="website">Website</label
+            ><input
+              pInputText
+              id="website"
+              formControlName="website"
+              maxlength="255"
+              inputmode="url"
+              autocomplete="url"
+              aria-describedby="website-error"
+            />
+            @if (fieldError('website', 'Website'); as message) {
+              <small id="website-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" aria-labelledby="organization-location-heading">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Location</p>
+            <h2 id="organization-location-heading">Primary address</h2>
+          </div>
+          <p>Organization-level address and regional settings.</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field form-field--wide">
+            <label for="addressLine1">Address line 1</label
+            ><input
+              pInputText
+              id="addressLine1"
+              formControlName="addressLine1"
+              maxlength="150"
+              autocomplete="address-line1"
+              aria-describedby="addressLine1-error"
+            />
+            @if (fieldError('addressLine1', 'Address line 1'); as message) {
+              <small id="addressLine1-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field form-field--wide">
+            <label for="addressLine2">Address line 2</label
+            ><input
+              pInputText
+              id="addressLine2"
+              formControlName="addressLine2"
+              maxlength="150"
+              autocomplete="address-line2"
+              aria-describedby="addressLine2-error"
+            />
+            @if (fieldError('addressLine2', 'Address line 2'); as message) {
+              <small id="addressLine2-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="city">City</label
+            ><input
+              pInputText
+              id="city"
+              formControlName="city"
+              maxlength="100"
+              autocomplete="address-level2"
+              aria-describedby="city-error"
+            />
+            @if (fieldError('city', 'City'); as message) {
+              <small id="city-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="stateCode">State code</label
+            ><input
+              pInputText
+              id="stateCode"
+              formControlName="stateCode"
+              maxlength="10"
+              autocomplete="address-level1"
+              aria-describedby="stateCode-error"
+            />
+            @if (fieldError('stateCode', 'State code'); as message) {
+              <small id="stateCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="postalCode">Postal code</label
+            ><input
+              pInputText
+              id="postalCode"
+              formControlName="postalCode"
+              maxlength="15"
+              autocomplete="postal-code"
+              aria-describedby="postalCode-error"
+            />
+            @if (fieldError('postalCode', 'Postal code'); as message) {
+              <small id="postalCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="countryCode">Country code <span aria-hidden="true">*</span></label
+            ><input
+              pInputText
+              id="countryCode"
+              formControlName="countryCode"
+              maxlength="2"
+              autocomplete="country"
+              aria-describedby="countryCode-error"
+            />
+            @if (fieldError('countryCode', 'Country code'); as message) {
+              <small id="countryCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="timezone">Timezone <span aria-hidden="true">*</span></label
+            ><input
+              pInputText
+              id="timezone"
+              formControlName="timezone"
+              maxlength="60"
+              aria-describedby="timezone-error"
+            />
+            @if (fieldError('timezone', 'Timezone'); as message) {
+              <small id="timezone-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="currencyCode">Currency code <span aria-hidden="true">*</span></label
+            ><input
+              pInputText
+              id="currencyCode"
+              formControlName="currencyCode"
+              maxlength="3"
+              aria-describedby="currencyCode-error"
+            />
+            @if (fieldError('currencyCode', 'Currency code'); as message) {
+              <small id="currencyCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="languageCode">Language code <span aria-hidden="true">*</span></label
+            ><input
+              pInputText
+              id="languageCode"
+              formControlName="languageCode"
+              maxlength="10"
+              aria-describedby="languageCode-error"
+            />
+            @if (fieldError('languageCode', 'Language code'); as message) {
+              <small id="languageCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" aria-labelledby="organization-booking-heading">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Configuration</p>
+            <h2 id="organization-booking-heading">Booking defaults</h2>
+          </div>
+          <p>Primary booking rules currently exposed by the backend.</p>
+        </div>
+        <div class="toggle-grid">
+          <label class="toggle-field"
+            ><input type="checkbox" formControlName="allowsPublicBooking" /><span
+              ><strong>Public booking</strong><small>Allow public booking flows.</small></span
+            ></label
+          >
+          <label class="toggle-field"
+            ><input type="checkbox" formControlName="allowsGuestBooking" /><span
+              ><strong>Guest booking</strong><small>Allow bookings without an account.</small></span
+            ></label
+          >
+          <label class="toggle-field"
+            ><input type="checkbox" formControlName="requiresAppointmentConfirmation" /><span
+              ><strong>Appointment confirmation</strong
+              ><small>Require confirmation before an appointment is confirmed.</small></span
+            ></label
+          >
+        </div>
+        <div class="form-grid form-grid--three">
+          <div class="form-field">
+            <label for="minimumBookingNoticeMinutes">Minimum notice (minutes)</label
+            ><input
+              pInputText
+              id="minimumBookingNoticeMinutes"
+              type="number"
+              min="0"
+              formControlName="minimumBookingNoticeMinutes"
+              aria-describedby="minimumBookingNoticeMinutes-error"
+            />
+            @if (fieldError('minimumBookingNoticeMinutes', 'Minimum notice'); as message) {
+              <small id="minimumBookingNoticeMinutes-error" class="field-error">{{
+                message
+              }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="maximumBookingDaysAhead">Booking horizon (days)</label
+            ><input
+              pInputText
+              id="maximumBookingDaysAhead"
+              type="number"
+              min="0"
+              formControlName="maximumBookingDaysAhead"
+              aria-describedby="maximumBookingDaysAhead-error"
+            />
+            @if (fieldError('maximumBookingDaysAhead', 'Booking horizon'); as message) {
+              <small id="maximumBookingDaysAhead-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="cancellationNoticeMinutes">Cancellation notice (minutes)</label
+            ><input
+              pInputText
+              id="cancellationNoticeMinutes"
+              type="number"
+              min="0"
+              formControlName="cancellationNoticeMinutes"
+              aria-describedby="cancellationNoticeMinutes-error"
+            />
+            @if (fieldError('cancellationNoticeMinutes', 'Cancellation notice'); as message) {
+              <small id="cancellationNoticeMinutes-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a pButton routerLink="/organizations" class="secondary-action"><span>Cancel</span></a>
+        <button pButton type="submit" class="primary-action" [disabled]="saving()">
+          <i [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i>
+          <span>{{ saving() ? 'Saving…' : editing ? 'Save changes' : 'Create organization' }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</section>

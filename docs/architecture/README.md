@@ -1,8 +1,9 @@
 # Arquitectura
 
-AgendaFlow Web utiliza componentes standalone y rutas con carga diferida. `AppComponent` contiene
-exclusivamente el `RouterOutlet` raíz; el router carga `AppShellComponent` y, dentro de él, la página
-técnica correspondiente a cada módulo.
+AgendaFlow Web utiliza componentes standalone, rutas lazy y un application shell común. La Fase 2
+introduce el primer vertical slice funcional sin incorporar estado global ni autenticación.
+
+## Flujo principal
 
 ```text
 AppComponent
@@ -10,38 +11,50 @@ AppComponent
     ├── TopbarComponent
     ├── SidebarComponent
     └── PageContainerComponent
-        └── RouterOutlet (página lazy)
+        └── RouterOutlet
+            ├── organizations/pages
+            └── branches/pages
 ```
 
-## Application shell
+El sidebar incluye `Organizations`; las sucursales se abren siempre desde su organización. La ruta
+técnica `/branches` se conserva como placeholder, pero no permite operar una sucursal fuera de su
+contexto padre.
 
-- `TopbarComponent` presenta la marca, el entorno técnico y el control accesible del menú móvil.
-- `SidebarComponent` concentra la navegación principal y su estado activo.
-- `PageContainerComponent` aporta el landmark principal y el destino del enlace para saltar la
-  navegación.
-- `AppShellComponent` coordina apertura, cierre, tecla Escape, overlay y restauración del foco en
-  pantallas pequeñas.
+## Features
 
-En escritorio la navegación lateral permanece visible. En resoluciones menores al breakpoint
-centralizado, se convierte en un panel superpuesto y devuelve el foco al botón que lo abrió al
-cerrarse.
+`features/organizations` contiene:
 
-## Rutas y páginas
+- `models/organization.model.ts`: `Organization`, `OrganizationSummary`, requests y estados.
+- `services/organizations-api.service.ts`: listado paginado, detalle, creación y actualización.
+- `pages`: listado, detalle y formulario compartido para crear/editar.
 
-Las rutas `/dashboard`, `/appointments`, `/customers`, `/specialists`, `/services`, `/branches` y
-`/settings` son hijas lazy del shell. `/` redirige a `/dashboard` y el wildcard presenta la página
-404 dentro del mismo marco visual.
+`features/branches` contiene:
 
-En esta fase las siete rutas usan `ModulePlaceholderPageComponent`: una composición técnica de
-`PageHeaderComponent` y `EmptyStateComponent` cuyo contenido declara honestamente que cada módulo
-se implementará en una fase posterior. No contiene datos de demostración ni lógica de negocio.
+- `models/branch.model.ts`: respuesta y requests exactos del backend.
+- `services/branches-api.service.ts`: operaciones siempre anidadas por `organizationId`.
+- `pages`: listado por organización y formulario compartido para crear/editar.
 
-## Límites de carpetas
+El backend devuelve `OrganizationResponse` también en el listado; por eso
+`OrganizationSummary` es un alias explícito de `Organization`, sin inventar un contrato adicional.
+`PageResponse<T>` reproduce `content`, `page`, `size`, `totalElements`, `totalPages`, `first` y
+`last`.
 
-- `core`: configuración transversal, shell, layout e infraestructura futura.
-- `features`: límites de los módulos funcionales, aún sin implementaciones de negocio.
-- `shared`: componentes visuales reutilizables y sin conocimiento de dominio.
+## HTTP, estado y errores
 
-No existe `SharedModule`: los componentes se importan directamente para preservar el enfoque
-standalone y facilitar el tree shaking. Tampoco existen servicios HTTP, guards, interceptores,
-autenticación ni estado global.
+`provideHttpClient` habilita la infraestructura oficial. Cada servicio construye sus URLs desde
+`API_CONFIG`; no existe cliente genérico, interceptor JWT ni uso de credenciales. Los errores se
+normalizan en `core/http` y traducen códigos conocidos del backend a mensajes seguros.
+
+Las páginas usan Signals locales para `loading`, datos, error y `saving`. Cada navegación dispara
+una sola carga intencional; `saving` evita dobles envíos. No se utiliza NgRx, Signal Store externo,
+BehaviorSubject global ni caché ficticia.
+
+## Rutas
+
+Las siete rutas funcionales bajo `/organizations` se cargan de forma diferida. `/` continúa
+redirigiendo a `/dashboard`; los placeholders técnicos previos y el wildcard 404 permanecen dentro
+del shell.
+
+Los identificadores se validan como enteros positivos seguros antes de llamar a la API. Se modelan
+como `number` por requisito de contrato, con la limitación documentada de
+`Number.MAX_SAFE_INTEGER`.

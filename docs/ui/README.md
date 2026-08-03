@@ -1,40 +1,34 @@
 # Sistema visual
 
-La interfaz extiende el preset Aura mediante design tokens de PrimeNG y SCSS propio para la
-composición. Busca una experiencia profesional, serena y legible durante jornadas prolongadas,
-sin depender de selectores internos de componentes ni de elementos PRO.
+La Fase 2 conserva el preset Aura personalizado y la paleta teal/slate de AgendaFlow. Los nuevos
+flujos reutilizan `PageHeaderComponent`, `EmptyStateComponent`, `StatusBadgeComponent` y el
+application shell, sin crear un framework interno de formularios.
 
-## Paleta
+## Patrones funcionales
 
-| Uso | Valor |
-| --- | --- |
-| Primary 600 / 700 / 100 | `#0F766E` / `#115E59` / `#CCFBF1` |
-| Accent | `#0284C7` |
-| Background / Surface | `#F8FAFC` / `#FFFFFF` |
-| Border | `#E2E8F0` |
-| Text / Text muted | `#1E293B` / `#64748B` |
-| Success / Warning / Danger | `#15803D` / `#B45309` / `#B91C1C` |
+- Los listados presentan encabezado, acción primaria, carga, error con retry, vacío y paginación.
+- PrimeNG Table se usa en escritorio; en móvil los mismos registros se muestran como tarjetas
+  semánticas para mantener legibles datos y acciones sin scroll horizontal descontrolado.
+- Los formularios agrupan identidad, contacto, ubicación y configuración en superficies claras,
+  con labels visibles, campos obligatorios, errores asociados y submit bloqueado durante guardado.
+- El detalle de organización separa identidad, contacto, ubicación, configuración regional y
+  reglas principales de reservas; los valores ausentes se muestran como `Not provided`.
+- Las sucursales muestran siempre la organización padre, breadcrumbs, dirección, estado activo y
+  acción de edición.
 
-`src/styles/_tokens.scss` centraliza color, escala de espaciado, radios, sombras, ancho máximo de
-página, dimensiones de topbar/sidebar, transiciones, anillo de foco y breakpoint. El layout usa
-Grid y Flexbox; `styles.scss` reúne reset, tipografía, utilidades y composición.
+## Estados y confirmaciones
 
-## Componentes compartidos
-
-- `PageHeaderComponent`: título, descripción opcional, breadcrumbs y área proyectable de acciones.
-- `EmptyStateComponent`: estado vacío accesible con icono, explicación y acción opcional.
-- `StatusBadgeComponent`: representa `active`, `inactive`, `pending`, `confirmed` y `cancelled` con
-  texto, icono y color, de modo que el significado nunca depende solo del color.
-
-Los componentes PrimeNG se importan individualmente. No se utiliza `::ng-deep`, selectores internos
-frágiles, gradientes intensos ni animaciones decorativas excesivas.
+Los mensajes PrimeNG informan errores y confirmaciones de creación/edición sin diálogos
+intrusivos. Los estados usan texto e icono además de color. `StatusBadgeComponent` contempla los
+estados de organización `active`, `pending`, `suspended`, `inactive` y los estados ya disponibles
+para fases posteriores.
 
 ## Responsive y accesibilidad
 
-El shell mantiene el sidebar fijo en escritorio y lo transforma en drawer con overlay en móvil y
-tablet. El botón de menú informa `aria-expanded`; el primer enlace recibe foco al abrir y el botón
-recupera el foco al cerrar. Escape y el overlay también cierran el panel.
+Se mantienen foco visible, enlace para saltar navegación, landmarks, jerarquía de encabezados,
+controles con nombre accesible y operación mediante teclado. En pantallas pequeñas, las acciones
+principales ocupan el ancho disponible y los grupos de campos pasan a una sola columna. Las
+transiciones respetan `prefers-reduced-motion`.
 
-La aplicación incluye enlace para saltar navegación, landmarks semánticos, jerarquía de encabezados,
-estado activo identificable, foco visible, controles con nombre accesible y navegación por teclado.
-Las transiciones se desactivan cuando el sistema indica `prefers-reduced-motion: reduce`.
+Los estilos se apoyan en clases propias y tokens; no usan `::ng-deep`, selectores internos frágiles
+de PrimeNG, componentes PRO, gradientes fuertes ni animaciones decorativas.

@@ -8,6 +8,7 @@ describe('StatusBadgeComponent', () => {
       ['active', 'Activo'],
       ['inactive', 'Inactivo'],
       ['pending', 'Pendiente'],
+      ['suspended', 'Suspendido'],
       ['confirmed', 'Confirmado'],
       ['cancelled', 'Cancelado'],
     ];

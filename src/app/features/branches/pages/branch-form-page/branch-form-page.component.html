@@ -1,0 +1,284 @@
+<section
+  class="feature-page"
+  [attr.aria-labelledby]="editing ? 'edit-branch-title' : 'new-branch-title'"
+>
+  <app-page-header
+    [title]="editing ? 'Edit branch' : 'New branch'"
+    [headingId]="editing ? 'edit-branch-title' : 'new-branch-title'"
+    [description]="
+      organization()
+        ? 'Location within ' + organization()!.legalName + '.'
+        : 'Organization-scoped branch.'
+    "
+    [breadcrumbs]="[
+      'Organizations',
+      organization()?.legalName || 'Organization',
+      'Branches',
+      editing ? 'Edit' : 'New',
+    ]"
+  />
+
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading branch</strong>
+    </div>
+  } @else if (!loaded() && error(); as loadError) {
+    <div class="state-stack" role="alert">
+      <p-message severity="error">{{ loadError.message }}</p-message
+      ><a pButton routerLink="/organizations" class="secondary-action">Back to organizations</a>
+    </div>
+  } @else {
+    <div class="parent-context">
+      <i class="pi pi-building" aria-hidden="true"></i
+      ><span
+        ><small>Parent organization</small><strong>{{ organization()!.legalName }}</strong></span
+      >
+    </div>
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (error(); as saveError) {
+        <p-message severity="error">{{ saveError.message }}</p-message>
+      }
+
+      <section class="form-section" aria-labelledby="branch-identity-heading">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Branch</p>
+            <h2 id="branch-identity-heading">Location profile</h2>
+          </div>
+          <p>The parent organization is fixed by the route and cannot be changed here.</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field form-field--wide">
+            <label for="name">Name <span aria-hidden="true">*</span></label
+            ><input
+              pInputText
+              id="name"
+              formControlName="name"
+              maxlength="150"
+              autocomplete="organization"
+              aria-describedby="name-error"
+            />
+            @if (fieldError('name', 'Name'); as message) {
+              <small id="name-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="code">Code</label
+            ><input
+              pInputText
+              id="code"
+              formControlName="code"
+              maxlength="40"
+              aria-describedby="code-error"
+            />
+            @if (fieldError('code', 'Code'); as message) {
+              <small id="code-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <label class="toggle-field toggle-field--compact"
+            ><input type="checkbox" formControlName="active" /><span
+              ><strong>Active branch</strong
+              ><small>Available for future operational configuration.</small></span
+            ></label
+          >
+        </div>
+      </section>
+
+      <section class="form-section" aria-labelledby="branch-contact-heading">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Contact</p>
+            <h2 id="branch-contact-heading">Branch contact</h2>
+          </div>
+          <p>Contact channels specific to this location.</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="email">Email</label
+            ><input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              maxlength="254"
+              autocomplete="email"
+              aria-describedby="email-error"
+            />
+            @if (fieldError('email', 'Email'); as message) {
+              <small id="email-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="phone">Phone</label
+            ><input
+              pInputText
+              id="phone"
+              type="tel"
+              formControlName="phone"
+              maxlength="30"
+              autocomplete="tel"
+              aria-describedby="phone-error"
+            />
+            @if (fieldError('phone', 'Phone'); as message) {
+              <small id="phone-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" aria-labelledby="branch-location-heading">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Location</p>
+            <h2 id="branch-location-heading">Address and coordinates</h2>
+          </div>
+          <p>Coordinates are optional and accept up to six decimal places.</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field form-field--wide">
+            <label for="addressLine1">Address line 1</label
+            ><input
+              pInputText
+              id="addressLine1"
+              formControlName="addressLine1"
+              maxlength="150"
+              autocomplete="address-line1"
+              aria-describedby="addressLine1-error"
+            />
+            @if (fieldError('addressLine1', 'Address line 1'); as message) {
+              <small id="addressLine1-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field form-field--wide">
+            <label for="addressLine2">Address line 2</label
+            ><input
+              pInputText
+              id="addressLine2"
+              formControlName="addressLine2"
+              maxlength="150"
+              autocomplete="address-line2"
+              aria-describedby="addressLine2-error"
+            />
+            @if (fieldError('addressLine2', 'Address line 2'); as message) {
+              <small id="addressLine2-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="city">City</label
+            ><input
+              pInputText
+              id="city"
+              formControlName="city"
+              maxlength="100"
+              autocomplete="address-level2"
+              aria-describedby="city-error"
+            />
+            @if (fieldError('city', 'City'); as message) {
+              <small id="city-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="stateCode">State code</label
+            ><input
+              pInputText
+              id="stateCode"
+              formControlName="stateCode"
+              maxlength="10"
+              autocomplete="address-level1"
+              aria-describedby="stateCode-error"
+            />
+            @if (fieldError('stateCode', 'State code'); as message) {
+              <small id="stateCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="postalCode">Postal code</label
+            ><input
+              pInputText
+              id="postalCode"
+              formControlName="postalCode"
+              maxlength="15"
+              autocomplete="postal-code"
+              aria-describedby="postalCode-error"
+            />
+            @if (fieldError('postalCode', 'Postal code'); as message) {
+              <small id="postalCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="countryCode">Country code <span aria-hidden="true">*</span></label
+            ><input
+              pInputText
+              id="countryCode"
+              formControlName="countryCode"
+              maxlength="2"
+              autocomplete="country"
+              aria-describedby="countryCode-error"
+            />
+            @if (fieldError('countryCode', 'Country code'); as message) {
+              <small id="countryCode-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="timezone">Timezone</label
+            ><input
+              pInputText
+              id="timezone"
+              formControlName="timezone"
+              maxlength="60"
+              aria-describedby="timezone-error"
+            />
+            @if (fieldError('timezone', 'Timezone'); as message) {
+              <small id="timezone-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="latitude">Latitude</label
+            ><input
+              pInputText
+              id="latitude"
+              type="number"
+              min="-90"
+              max="90"
+              step="0.000001"
+              formControlName="latitude"
+              aria-describedby="latitude-error"
+            />
+            @if (fieldError('latitude', 'Latitude'); as message) {
+              <small id="latitude-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="longitude">Longitude</label
+            ><input
+              pInputText
+              id="longitude"
+              type="number"
+              min="-180"
+              max="180"
+              step="0.000001"
+              formControlName="longitude"
+              aria-describedby="longitude-error"
+            />
+            @if (fieldError('longitude', 'Longitude'); as message) {
+              <small id="longitude-error" class="field-error">{{ message }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a
+          pButton
+          class="secondary-action"
+          [routerLink]="['/organizations', organizationId, 'branches']"
+          >Cancel</a
+        >
+        <button pButton type="submit" class="primary-action" [disabled]="saving()">
+          <i [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i
+          ><span>{{ saving() ? 'Saving…' : editing ? 'Save changes' : 'Create branch' }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</section>

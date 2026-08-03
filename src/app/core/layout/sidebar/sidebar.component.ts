@@ -29,11 +29,12 @@ export class SidebarComponent {
 
   protected readonly navigationItems: readonly NavigationItem[] = [
     { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard' },
+    { label: 'Organizations', icon: 'pi pi-building', route: '/organizations' },
     { label: 'Appointments', icon: 'pi pi-calendar', route: '/appointments' },
     { label: 'Customers', icon: 'pi pi-users', route: '/customers' },
     { label: 'Specialists', icon: 'pi pi-id-card', route: '/specialists' },
     { label: 'Services', icon: 'pi pi-briefcase', route: '/services' },
-    { label: 'Branches', icon: 'pi pi-building', route: '/branches' },
+    { label: 'Branches', icon: 'pi pi-map-marker', route: '/branches' },
     { label: 'Settings', icon: 'pi pi-cog', route: '/settings' },
   ];
 

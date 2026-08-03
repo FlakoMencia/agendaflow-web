@@ -444,6 +444,12 @@ app-page-container {
   color: var(--af-warning);
 }
 
+.status-badge--suspended {
+  border-color: rgb(180 83 9 / 0.2);
+  background: #fff7ed;
+  color: var(--af-warning);
+}
+
 .status-badge--cancelled {
   border-color: rgb(185 28 28 / 0.2);
   background: #fef2f2;
