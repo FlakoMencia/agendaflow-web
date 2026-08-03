@@ -1,0 +1,27 @@
+<header class="page-header">
+  <div class="page-header__content">
+    @if (breadcrumbs().length > 0) {
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <ol>
+          @for (breadcrumb of breadcrumbs(); track breadcrumb; let last = $last) {
+            <li [attr.aria-current]="last ? 'page' : null">
+              <span>{{ breadcrumb }}</span>
+              @if (!last) {
+                <i class="pi pi-angle-right" aria-hidden="true"></i>
+              }
+            </li>
+          }
+        </ol>
+      </nav>
+    }
+
+    <h1 [id]="headingId()">{{ title() }}</h1>
+    @if (description(); as pageDescription) {
+      <p>{{ pageDescription }}</p>
+    }
+  </div>
+
+  <div class="page-header__actions">
+    <ng-content select="[pageActions]" />
+  </div>
+</header>

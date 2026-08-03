@@ -14,6 +14,7 @@ body {
   margin: 0;
   background: var(--af-background);
   color: var(--af-text);
+  overflow-x: hidden;
 }
 
 button,
@@ -22,8 +23,9 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--af-accent) 65%, white);
-  outline-offset: 3px;
+  outline: 2px solid var(--af-accent);
+  outline-offset: 2px;
+  box-shadow: var(--af-focus-ring);
 }
 
 @media (prefers-reduced-motion: reduce) {

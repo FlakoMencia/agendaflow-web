@@ -1,0 +1,33 @@
+<header class="topbar">
+  <div class="topbar__brand-group">
+    <button
+      #menuButton
+      class="topbar__menu-button"
+      type="button"
+      aria-label="Abrir o cerrar navegación principal"
+      aria-controls="primary-navigation"
+      [attr.aria-expanded]="navigationExpanded()"
+      (click)="navigationToggle.emit()"
+    >
+      <i class="pi pi-bars" aria-hidden="true"></i>
+    </button>
+
+    <a class="topbar__brand" routerLink="/dashboard" aria-label="AgendaFlow, ir al dashboard">
+      <span class="topbar__brand-mark" aria-hidden="true">A</span>
+      <span>AgendaFlow</span>
+    </a>
+
+    <span class="environment-badge">
+      <span class="environment-badge__dot" aria-hidden="true"></span>
+      Development
+    </span>
+  </div>
+
+  <div class="account-placeholder" aria-label="Cuenta de usuario no implementada">
+    <i class="pi pi-user" aria-hidden="true"></i>
+    <span>
+      <strong>Cuenta</strong>
+      <small>No implementada</small>
+    </span>
+  </div>
+</header>

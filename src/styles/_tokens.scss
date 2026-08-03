@@ -1,10 +1,15 @@
+$af-breakpoint-desktop: 64rem;
+
 :root {
+  --af-primary-50: #f0fdfa;
   --af-primary-600: #0f766e;
   --af-primary-700: #115e59;
+  --af-primary-800: #134e4a;
   --af-primary-100: #ccfbf1;
   --af-accent: #0284c7;
   --af-background: #f8fafc;
   --af-surface: #ffffff;
+  --af-surface-subtle: #f1f5f9;
   --af-border: #e2e8f0;
   --af-text: #1e293b;
   --af-text-muted: #64748b;
@@ -14,7 +19,22 @@
   --af-radius-sm: 0.625rem;
   --af-radius-md: 1rem;
   --af-radius-lg: 1.5rem;
+  --af-radius-round: 999px;
   --af-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05);
-  --af-shadow-md: 0 16px 40px rgb(15 23 42 / 0.08);
-  --af-content-width: 74rem;
+  --af-shadow-md: 0 14px 34px rgb(15 23 42 / 0.08);
+  --af-space-1: 0.25rem;
+  --af-space-2: 0.5rem;
+  --af-space-3: 0.75rem;
+  --af-space-4: 1rem;
+  --af-space-5: 1.25rem;
+  --af-space-6: 1.5rem;
+  --af-space-8: 2rem;
+  --af-space-10: 2.5rem;
+  --af-space-12: 3rem;
+  --af-page-width: 80rem;
+  --af-sidebar-width: 17rem;
+  --af-topbar-height: 4.5rem;
+  --af-transition-fast: 150ms ease;
+  --af-transition-base: 220ms ease;
+  --af-focus-ring: 0 0 0 3px rgb(2 132 199 / 0.32);
 }

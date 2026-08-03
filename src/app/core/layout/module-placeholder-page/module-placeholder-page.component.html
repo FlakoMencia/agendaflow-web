@@ -1,0 +1,16 @@
+<section class="module-page" [attr.aria-labelledby]="'page-title-' + page.title.toLowerCase()">
+  <app-page-header
+    [headingId]="'page-title-' + page.title.toLowerCase()"
+    [title]="page.title"
+    [description]="page.description"
+    [breadcrumbs]="breadcrumbs"
+  >
+    <app-status-badge pageActions status="pending" />
+  </app-page-header>
+
+  <app-empty-state
+    [title]="page.emptyTitle"
+    [description]="page.emptyDescription"
+    [icon]="page.icon"
+  />
+</section>

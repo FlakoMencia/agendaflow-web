@@ -1,0 +1,10 @@
+<section class="empty-state" [attr.aria-labelledby]="titleId">
+  <div class="empty-state__icon" aria-hidden="true">
+    <i [class]="icon()"></i>
+  </div>
+  <h2 [id]="titleId">{{ title() }}</h2>
+  <p>{{ description() }}</p>
+  <div class="empty-state__action">
+    <ng-content select="[emptyStateAction]" />
+  </div>
+</section>

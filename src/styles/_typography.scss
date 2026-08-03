@@ -9,12 +9,14 @@ select {
 
 h1,
 h2,
+h3,
 p {
   margin-block-start: 0;
 }
 
 h1,
-h2 {
+h2,
+h3 {
   color: var(--af-text);
   letter-spacing: -0.035em;
 }

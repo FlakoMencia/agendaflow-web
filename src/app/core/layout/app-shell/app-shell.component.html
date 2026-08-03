@@ -1,0 +1,30 @@
+<a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+<div
+  class="app-shell"
+  [class.is-navigation-open]="navigationOpen()"
+  (keydown.escape)="handleEscape()"
+>
+  <app-topbar
+    [navigationExpanded]="navigationOpen()"
+    (navigationToggle)="toggleNavigation()"
+  />
+
+  <app-sidebar
+    [open]="navigationOpen()"
+    (closeRequested)="closeNavigation()"
+    (navigationSelected)="closeNavigation()"
+  />
+
+  <button
+    class="shell-backdrop"
+    type="button"
+    aria-label="Cerrar navegación"
+    [attr.tabindex]="navigationOpen() ? 0 : -1"
+    (click)="closeNavigation()"
+  ></button>
+
+  <app-page-container>
+    <router-outlet />
+  </app-page-container>
+</div>

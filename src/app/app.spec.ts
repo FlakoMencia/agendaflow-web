@@ -23,18 +23,68 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render AgendaFlow and the Phase 0 status', async () => {
+  it('should redirect the root route to the dashboard and render the application shell', async () => {
     const fixture = await renderRoute('/');
+    const router = TestBed.inject(Router);
     const content = fixture.nativeElement.textContent as string;
 
+    expect(router.url).toBe('/dashboard');
+    expect(fixture.nativeElement.querySelector('app-shell')).toBeTruthy();
     expect(content).toContain('AgendaFlow');
-    expect(content).toContain('Fase 0 — Bootstrap');
+    expect(content).toContain('Development');
+    expect(content).toContain('Dashboard en preparación');
   });
 
-  it('should navigate unknown paths to the 404 page', async () => {
+  it('should navigate between technical feature routes', async () => {
+    const fixture = await renderRoute('/customers');
+    const router = TestBed.inject(Router);
+
+    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Customers');
+
+    await router.navigateByUrl('/services');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(router.url).toBe('/services');
+    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Services');
+    expect(fixture.nativeElement.textContent).toContain(
+      'Catálogo de servicios aún no implementado',
+    );
+  });
+
+  it('should open and close the mobile navigation and restore menu focus', async () => {
+    const fixture = await renderRoute('/dashboard');
+    const menuButton = fixture.nativeElement.querySelector(
+      '.topbar__menu-button',
+    ) as HTMLButtonElement;
+
+    expect(menuButton.getAttribute('aria-expanded')).toBe('false');
+
+    menuButton.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(menuButton.getAttribute('aria-expanded')).toBe('true');
+    expect(
+      fixture.nativeElement.querySelector('#primary-navigation')?.getAttribute('data-open'),
+    ).toBe('true');
+
+    const closeButton = fixture.nativeElement.querySelector(
+      '.sidebar__mobile-heading button',
+    ) as HTMLButtonElement;
+    closeButton.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(menuButton.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(menuButton);
+  });
+
+  it('should navigate unknown paths to the 404 page inside the shell', async () => {
     const fixture = await renderRoute('/ruta-inexistente');
     const content = fixture.nativeElement.textContent as string;
 
+    expect(fixture.nativeElement.querySelector('app-shell')).toBeTruthy();
     expect(content).toContain('Error 404');
     expect(content).toContain('Página no encontrada');
   });
