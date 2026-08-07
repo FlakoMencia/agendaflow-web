@@ -5,10 +5,12 @@
     description="Manage the organizations that use AgendaFlow and open their branch directories."
     [breadcrumbs]="['Workspace', 'Organizations']"
   >
-    <a pageActions pButton routerLink="/organizations/new" class="primary-action">
-      <i class="pi pi-plus" aria-hidden="true"></i>
-      <span>New organization</span>
-    </a>
+    @if (canCreate()) {
+      <a pageActions pButton routerLink="/organizations/new" class="primary-action">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        <span>New organization</span>
+      </a>
+    }
   </app-page-header>
 
   @if (loading()) {
@@ -30,13 +32,19 @@
   } @else if (organizations().length === 0) {
     <app-empty-state
       title="No organizations yet"
-      description="Create the first organization to begin configuring its branches."
+      [description]="
+        canCreate()
+          ? 'Create the first organization to begin configuring its branches.'
+          : 'No organization is available for this session.'
+      "
       icon="pi pi-building"
     >
-      <a emptyStateAction pButton routerLink="/organizations/new" class="primary-action">
-        <i class="pi pi-plus" aria-hidden="true"></i>
-        <span>New organization</span>
-      </a>
+      @if (canCreate()) {
+        <a emptyStateAction pButton routerLink="/organizations/new" class="primary-action">
+          <i class="pi pi-plus" aria-hidden="true"></i>
+          <span>New organization</span>
+        </a>
+      }
     </app-empty-state>
   } @else {
     <div class="data-surface data-surface--desktop">
@@ -65,8 +73,12 @@
             <td>
               <div class="row-actions" [attr.aria-label]="'Actions for ' + organization.legalName">
                 <a [routerLink]="['/organizations', organization.id]">View</a>
-                <a [routerLink]="['/organizations', organization.id, 'edit']">Edit</a>
-                <a [routerLink]="['/organizations', organization.id, 'branches']">Branches</a>
+                @if (canEdit()) {
+                  <a [routerLink]="['/organizations', organization.id, 'edit']">Edit</a>
+                }
+                @if (canViewBranches()) {
+                  <a [routerLink]="['/organizations', organization.id, 'branches']">Branches</a>
+                }
               </div>
             </td>
           </tr>
@@ -96,19 +108,25 @@
           </dl>
           <div class="row-actions">
             <a [routerLink]="['/organizations', organization.id]">View</a>
-            <a [routerLink]="['/organizations', organization.id, 'edit']">Edit</a>
-            <a [routerLink]="['/organizations', organization.id, 'branches']">Branches</a>
+            @if (canEdit()) {
+              <a [routerLink]="['/organizations', organization.id, 'edit']">Edit</a>
+            }
+            @if (canViewBranches()) {
+              <a [routerLink]="['/organizations', organization.id, 'branches']">Branches</a>
+            }
           </div>
         </article>
       }
     </div>
 
-    <p-paginator
-      [first]="page() * size()"
-      [rows]="size()"
-      [totalRecords]="totalElements()"
-      [rowsPerPageOptions]="[10, 20, 50, 100]"
-      (onPageChange)="onPageChange($event)"
-    />
+    @if (isPlatformAdmin()) {
+      <p-paginator
+        [first]="page() * size()"
+        [rows]="size()"
+        [totalRecords]="totalElements()"
+        [rowsPerPageOptions]="[10, 20, 50, 100]"
+        (onPageChange)="onPageChange($event)"
+      />
+    }
   }
 </section>

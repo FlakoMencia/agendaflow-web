@@ -1,0 +1,72 @@
+.auth-page,
+.session-initializing {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: var(--af-space-6);
+  background: var(--af-background);
+}
+
+.session-initializing {
+  gap: var(--af-space-3);
+  align-content: center;
+  color: var(--af-text-muted);
+}
+
+.session-initializing i {
+  color: var(--af-primary-600);
+  font-size: 1.5rem;
+}
+
+.login-card {
+  width: min(100%, 29rem);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  border: 1px solid var(--af-border);
+  border-radius: var(--af-radius-lg);
+  background: var(--af-surface);
+  box-shadow: var(--af-shadow-md);
+}
+
+.login-card__header {
+  display: flex;
+  gap: var(--af-space-4);
+  margin-bottom: var(--af-space-6);
+  align-items: flex-start;
+}
+
+.login-card__header h1 {
+  margin-bottom: var(--af-space-2);
+  font-size: clamp(1.8rem, 6vw, 2.35rem);
+}
+
+.login-card__header p:last-child {
+  margin: 0;
+}
+
+.login-card__mark {
+  display: grid;
+  width: 3rem;
+  flex: 0 0 auto;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: var(--af-radius-md);
+  background: var(--af-primary-600);
+  color: white;
+  font-weight: 800;
+}
+
+.login-card form {
+  display: grid;
+  gap: var(--af-space-5);
+}
+
+.field-note {
+  color: var(--af-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.login-card__submit {
+  width: 100%;
+  min-height: 2.9rem;
+}

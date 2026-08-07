@@ -1,1 +1,8 @@
-<router-outlet />
+@if (auth.isInitializing()) {
+  <main class="session-initializing" role="status" aria-live="polite">
+    <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+    <span>Restoring your AgendaFlow session…</span>
+  </main>
+} @else {
+  <router-outlet />
+}

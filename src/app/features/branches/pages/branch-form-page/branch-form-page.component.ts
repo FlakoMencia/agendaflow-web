@@ -16,6 +16,8 @@ import { MessageModule } from 'primeng/message';
 
 import { ApiError } from '../../../../core/http/api-error.model';
 import { mapApiError } from '../../../../core/http/api-error.mapper';
+import { ActiveOrganization } from '../../../../core/security/auth.models';
+import { AuthSessionService } from '../../../../core/security/auth-session.service';
 import { formErrorMessage } from '../../../../core/http/form-validation';
 import { Organization } from '../../../organizations/models/organization.model';
 import { OrganizationsApiService } from '../../../organizations/services/organizations-api.service';
@@ -42,11 +44,12 @@ export class BranchFormPageComponent implements OnInit {
   private readonly organizationsApi = inject(OrganizationsApiService);
   private readonly branchesApi = inject(BranchesApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthSessionService);
 
   readonly organizationId = Number(this.route.snapshot.paramMap.get('organizationId'));
   readonly branchId = Number(this.route.snapshot.paramMap.get('branchId'));
   readonly editing = Number.isSafeInteger(this.branchId) && this.branchId > 0;
-  readonly organization = signal<Organization | null>(null);
+  readonly organization = signal<Organization | ActiveOrganization | null>(null);
   readonly loading = signal(true);
   readonly loaded = signal(false);
   readonly saving = signal(false);
@@ -129,13 +132,36 @@ export class BranchFormPageComponent implements OnInit {
       return;
     }
 
-    const request: Observable<{ organization: Organization; branch: Branch | null }> = this.editing
+    const activeOrganization = this.auth.activeOrganization();
+    const organizationRequest: Observable<Organization | ActiveOrganization> | null =
+      this.auth.hasPermission('ORGANIZATION_VIEW')
+        ? this.organizationsApi.get(this.organizationId)
+        : activeOrganization?.id === this.organizationId
+          ? of(activeOrganization)
+          : null;
+
+    if (!organizationRequest) {
+      this.loading.set(false);
+      this.error.set({
+        timestamp: null,
+        status: 403,
+        code: 'ACCESS_DENIED',
+        message: 'This branch is outside the active organization.',
+        path: null,
+      });
+      return;
+    }
+
+    const request: Observable<{
+      organization: Organization | ActiveOrganization;
+      branch: Branch | null;
+    }> = this.editing
       ? forkJoin({
-          organization: this.organizationsApi.get(this.organizationId),
+          organization: organizationRequest,
           branch: this.branchesApi.get(this.organizationId, this.branchId),
         })
       : forkJoin({
-          organization: this.organizationsApi.get(this.organizationId),
+          organization: organizationRequest,
           branch: of<Branch | null>(null),
         });
 

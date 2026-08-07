@@ -7,20 +7,24 @@
   >
     @if (organization(); as currentOrganization) {
       <div pageActions class="header-actions">
-        <a
-          pButton
-          class="secondary-action"
-          [routerLink]="['/organizations', currentOrganization.id, 'branches']"
-        >
-          <i class="pi pi-map-marker" aria-hidden="true"></i><span>Branches</span>
-        </a>
-        <a
-          pButton
-          class="primary-action"
-          [routerLink]="['/organizations', currentOrganization.id, 'edit']"
-        >
-          <i class="pi pi-pencil" aria-hidden="true"></i><span>Edit</span>
-        </a>
+        @if (canViewBranches()) {
+          <a
+            pButton
+            class="secondary-action"
+            [routerLink]="['/organizations', currentOrganization.id, 'branches']"
+          >
+            <i class="pi pi-map-marker" aria-hidden="true"></i><span>Branches</span>
+          </a>
+        }
+        @if (canEdit()) {
+          <a
+            pButton
+            class="primary-action"
+            [routerLink]="['/organizations', currentOrganization.id, 'edit']"
+          >
+            <i class="pi pi-pencil" aria-hidden="true"></i><span>Edit</span>
+          </a>
+        }
       </div>
     }
   </app-page-header>

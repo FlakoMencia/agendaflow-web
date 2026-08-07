@@ -11,6 +11,10 @@ const KNOWN_MESSAGES: Readonly<Record<string, string>> = {
   VALIDATION_ERROR: 'Review the highlighted fields and try again.',
   DATA_INTEGRITY_CONFLICT: 'The change conflicts with existing information.',
   INTERNAL_ERROR: 'The service could not complete the request. Try again later.',
+  TOKEN_EXPIRED: 'Your session has ended. Sign in again.',
+  INVALID_TOKEN: 'Your session is no longer valid. Sign in again.',
+  ACCESS_DENIED: 'You do not have permission to complete this action.',
+  ACCOUNT_LOCKED: 'This account cannot complete the request right now.',
 };
 
 export function mapApiError(error: unknown): ApiError {
@@ -60,15 +64,21 @@ function readErrorBody(value: unknown): ApiError | null {
 
 function statusCode(status: number): string {
   if (status === 400) return 'VALIDATION_ERROR';
+  if (status === 401) return 'AUTHENTICATION_REQUIRED';
+  if (status === 403) return 'ACCESS_DENIED';
   if (status === 404) return 'NOT_FOUND';
   if (status === 409) return 'DATA_INTEGRITY_CONFLICT';
+  if (status === 423) return 'ACCOUNT_LOCKED';
   return 'UNEXPECTED_ERROR';
 }
 
 function fallbackMessage(status: number): string {
   if (status === 400) return KNOWN_MESSAGES['VALIDATION_ERROR'];
+  if (status === 401) return 'Your session has ended. Sign in again.';
+  if (status === 403) return KNOWN_MESSAGES['ACCESS_DENIED'];
   if (status === 404) return 'The requested information could not be found.';
   if (status === 409) return KNOWN_MESSAGES['DATA_INTEGRITY_CONFLICT'];
+  if (status === 423) return KNOWN_MESSAGES['ACCOUNT_LOCKED'];
   return 'An unexpected error occurred. Try again later.';
 }
 

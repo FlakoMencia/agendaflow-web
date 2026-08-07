@@ -11,15 +11,22 @@
   >
     @if (organization(); as parentOrganization) {
       <div pageActions class="header-actions">
-        <a pButton class="secondary-action" [routerLink]="['/organizations', parentOrganization.id]"
-          ><i class="pi pi-arrow-left" aria-hidden="true"></i><span>Organization</span></a
-        >
-        <a
-          pButton
-          class="primary-action"
-          [routerLink]="['/organizations', parentOrganization.id, 'branches', 'new']"
-          ><i class="pi pi-plus" aria-hidden="true"></i><span>New branch</span></a
-        >
+        @if (canViewOrganization()) {
+          <a
+            pButton
+            class="secondary-action"
+            [routerLink]="['/organizations', parentOrganization.id]"
+            ><i class="pi pi-arrow-left" aria-hidden="true"></i><span>Organization</span></a
+          >
+        }
+        @if (canManageBranches()) {
+          <a
+            pButton
+            class="primary-action"
+            [routerLink]="['/organizations', parentOrganization.id, 'branches', 'new']"
+            ><i class="pi pi-plus" aria-hidden="true"></i><span>New branch</span></a
+          >
+        }
       </div>
     }
   </app-page-header>
@@ -44,16 +51,22 @@
   } @else if (branches().length === 0) {
     <app-empty-state
       title="No branches yet"
-      [description]="'Create the first location for ' + organization()!.legalName + '.'"
+      [description]="
+        canManageBranches()
+          ? 'Create the first location for ' + organization()!.legalName + '.'
+          : 'No branches are available for this organization.'
+      "
       icon="pi pi-map-marker"
     >
-      <a
-        emptyStateAction
-        pButton
-        class="primary-action"
-        [routerLink]="['/organizations', organizationId, 'branches', 'new']"
-        ><i class="pi pi-plus" aria-hidden="true"></i><span>New branch</span></a
-      >
+      @if (canManageBranches()) {
+        <a
+          emptyStateAction
+          pButton
+          class="primary-action"
+          [routerLink]="['/organizations', organizationId, 'branches', 'new']"
+          ><i class="pi pi-plus" aria-hidden="true"></i><span>New branch</span></a
+        >
+      }
     </app-empty-state>
   } @else {
     <div class="parent-context">
@@ -86,11 +99,14 @@
             </td>
             <td><app-status-badge [status]="branch.active ? 'active' : 'inactive'" /></td>
             <td>
-              <div class="row-actions">
-                <a [routerLink]="['/organizations', organizationId, 'branches', branch.id, 'edit']"
-                  >Edit</a
-                >
-              </div>
+              @if (canManageBranches()) {
+                <div class="row-actions">
+                  <a
+                    [routerLink]="['/organizations', organizationId, 'branches', branch.id, 'edit']"
+                    >Edit</a
+                  >
+                </div>
+              }
             </td>
           </tr>
         </ng-template>
@@ -116,11 +132,13 @@
               <dd>{{ branch.email || branch.phone || 'Not provided' }}</dd>
             </div>
           </dl>
-          <div class="row-actions">
-            <a [routerLink]="['/organizations', organizationId, 'branches', branch.id, 'edit']"
-              >Edit branch</a
-            >
-          </div>
+          @if (canManageBranches()) {
+            <div class="row-actions">
+              <a [routerLink]="['/organizations', organizationId, 'branches', branch.id, 'edit']"
+                >Edit branch</a
+              >
+            </div>
+          }
         </article>
       }
     </div>

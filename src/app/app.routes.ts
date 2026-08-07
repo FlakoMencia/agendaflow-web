@@ -1,18 +1,33 @@
 import { Routes } from '@angular/router';
 
+import {
+  authChildGuard,
+  authGuard,
+  guestGuard,
+  permissionGuard,
+} from './core/security/auth.guards';
+import { Permission } from './core/security/auth.models';
+
 export const routes: Routes = [
   {
+    path: 'login',
+    title: 'Sign in | AgendaFlow',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/pages/login-page/login-page.component').then(
+        ({ LoginPageComponent }) => LoginPageComponent,
+      ),
+  },
+  {
     path: '',
+    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
     loadComponent: () =>
       import('./core/layout/app-shell/app-shell.component').then(
         ({ AppShellComponent }) => AppShellComponent,
       ),
     children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'dashboard',
-      },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
         title: 'Dashboard | AgendaFlow',
@@ -31,6 +46,8 @@ export const routes: Routes = [
       {
         path: 'organizations',
         title: 'Organizations | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['ORGANIZATION_VIEW'] },
         loadComponent: () =>
           import('./features/organizations/pages/organization-list-page/organization-list-page.component').then(
             ({ OrganizationListPageComponent }) => OrganizationListPageComponent,
@@ -39,6 +56,8 @@ export const routes: Routes = [
       {
         path: 'organizations/new',
         title: 'New organization | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { roles: ['PLATFORM_ADMIN'] },
         loadComponent: () =>
           import('./features/organizations/pages/organization-form-page/organization-form-page.component').then(
             ({ OrganizationFormPageComponent }) => OrganizationFormPageComponent,
@@ -47,6 +66,8 @@ export const routes: Routes = [
       {
         path: 'organizations/:organizationId',
         title: 'Organization details | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['ORGANIZATION_VIEW'] },
         loadComponent: () =>
           import('./features/organizations/pages/organization-detail-page/organization-detail-page.component').then(
             ({ OrganizationDetailPageComponent }) => OrganizationDetailPageComponent,
@@ -55,6 +76,8 @@ export const routes: Routes = [
       {
         path: 'organizations/:organizationId/edit',
         title: 'Edit organization | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['ORGANIZATION_UPDATE'] },
         loadComponent: () =>
           import('./features/organizations/pages/organization-form-page/organization-form-page.component').then(
             ({ OrganizationFormPageComponent }) => OrganizationFormPageComponent,
@@ -63,6 +86,8 @@ export const routes: Routes = [
       {
         path: 'organizations/:organizationId/branches',
         title: 'Branches | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['BRANCHES_VIEW'] },
         loadComponent: () =>
           import('./features/branches/pages/branch-list-page/branch-list-page.component').then(
             ({ BranchListPageComponent }) => BranchListPageComponent,
@@ -71,6 +96,8 @@ export const routes: Routes = [
       {
         path: 'organizations/:organizationId/branches/new',
         title: 'New branch | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['BRANCHES_MANAGE'] },
         loadComponent: () =>
           import('./features/branches/pages/branch-form-page/branch-form-page.component').then(
             ({ BranchFormPageComponent }) => BranchFormPageComponent,
@@ -79,90 +106,70 @@ export const routes: Routes = [
       {
         path: 'organizations/:organizationId/branches/:branchId/edit',
         title: 'Edit branch | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['BRANCHES_MANAGE'] },
         loadComponent: () =>
           import('./features/branches/pages/branch-form-page/branch-form-page.component').then(
             ({ BranchFormPageComponent }) => BranchFormPageComponent,
           ),
       },
+      moduleRoute(
+        'appointments',
+        'Appointments',
+        'APPOINTMENTS_VIEW',
+        'Espacio reservado para la gestión futura de citas.',
+        'Gestión de citas aún no implementada',
+        'El calendario, las reservas y los estados de citas llegarán en fases posteriores.',
+        'pi pi-calendar',
+      ),
+      moduleRoute(
+        'customers',
+        'Customers',
+        'CUSTOMERS_VIEW',
+        'Espacio reservado para la administración futura de clientes.',
+        'Clientes aún no implementados',
+        'Los perfiles, historiales y acciones sobre clientes se agregarán más adelante.',
+        'pi pi-users',
+      ),
+      moduleRoute(
+        'specialists',
+        'Specialists',
+        'SPECIALISTS_VIEW',
+        'Espacio reservado para especialistas y sus asignaciones.',
+        'Especialistas aún no implementados',
+        'Perfiles profesionales, servicios y disponibilidad se incorporarán después.',
+        'pi pi-id-card',
+      ),
+      moduleRoute(
+        'services',
+        'Services',
+        'SERVICES_VIEW',
+        'Espacio reservado para el catálogo futuro de servicios.',
+        'Catálogo de servicios aún no implementado',
+        'La definición de servicios, duración y disponibilidad llegará en otra fase.',
+        'pi pi-briefcase',
+      ),
+      moduleRoute(
+        'branches',
+        'Branches',
+        'BRANCHES_VIEW',
+        'Acceso técnico al futuro módulo global de sucursales.',
+        'Use la sucursal de su organización activa',
+        'La gestión disponible permanece vinculada a la organización activa.',
+        'pi pi-building',
+      ),
       {
-        path: 'appointments',
-        title: 'Appointments | AgendaFlow',
+        ...moduleRoute(
+          'settings',
+          'Settings',
+          'ORGANIZATION_UPDATE',
+          'Espacio reservado para la configuración futura de la plataforma.',
+          'Configuración aún no implementada',
+          'Las preferencias de organización y seguridad se definirán en fases posteriores.',
+          'pi pi-cog',
+        ),
         data: {
-          page: {
-            title: 'Appointments',
-            description: 'Espacio reservado para la gestión futura de citas.',
-            emptyTitle: 'Gestión de citas aún no implementada',
-            emptyDescription:
-              'El calendario, las reservas y los estados de citas llegarán en fases posteriores.',
-            icon: 'pi pi-calendar',
-          },
-        },
-        loadComponent: loadModulePlaceholder,
-      },
-      {
-        path: 'customers',
-        title: 'Customers | AgendaFlow',
-        data: {
-          page: {
-            title: 'Customers',
-            description: 'Espacio reservado para la administración futura de clientes.',
-            emptyTitle: 'Clientes aún no implementados',
-            emptyDescription:
-              'Los perfiles, historiales y acciones sobre clientes se agregarán más adelante.',
-            icon: 'pi pi-users',
-          },
-        },
-        loadComponent: loadModulePlaceholder,
-      },
-      {
-        path: 'specialists',
-        title: 'Specialists | AgendaFlow',
-        data: {
-          page: {
-            title: 'Specialists',
-            description: 'Espacio reservado para especialistas y sus asignaciones.',
-            emptyTitle: 'Especialistas aún no implementados',
-            emptyDescription:
-              'Perfiles profesionales, servicios y disponibilidad se incorporarán después.',
-            icon: 'pi pi-id-card',
-          },
-        },
-        loadComponent: loadModulePlaceholder,
-      },
-      {
-        path: 'services',
-        title: 'Services | AgendaFlow',
-        data: {
-          page: {
-            title: 'Services',
-            description: 'Espacio reservado para el catálogo futuro de servicios.',
-            emptyTitle: 'Catálogo de servicios aún no implementado',
-            emptyDescription:
-              'La definición de servicios, duración y disponibilidad llegará en otra fase.',
-            icon: 'pi pi-briefcase',
-          },
-        },
-        loadComponent: loadModulePlaceholder,
-      },
-      {
-        path: 'branches',
-        title: 'Branches | AgendaFlow',
-        data: {
-          page: {
-            title: 'Branches',
-            description: 'Espacio reservado para la administración futura de sucursales.',
-            emptyTitle: 'Sucursales aún no implementadas',
-            emptyDescription:
-              'La configuración de ubicaciones y horarios se incorporará posteriormente.',
-            icon: 'pi pi-building',
-          },
-        },
-        loadComponent: loadModulePlaceholder,
-      },
-      {
-        path: 'settings',
-        title: 'Settings | AgendaFlow',
-        data: {
+          permissions: ['ORGANIZATION_UPDATE', 'USERS_VIEW', 'ROLES_VIEW'],
           page: {
             title: 'Settings',
             description: 'Espacio reservado para la configuración futura de la plataforma.',
@@ -172,19 +179,47 @@ export const routes: Routes = [
             icon: 'pi pi-cog',
           },
         },
-        loadComponent: loadModulePlaceholder,
       },
       {
-        path: '**',
-        title: 'Página no encontrada | AgendaFlow',
+        path: 'access-denied',
+        title: 'Access denied | AgendaFlow',
         loadComponent: () =>
-          import('./core/layout/not-found-page/not-found-page.component').then(
-            ({ NotFoundPageComponent }) => NotFoundPageComponent,
+          import('./core/layout/access-denied-page/access-denied-page.component').then(
+            ({ AccessDeniedPageComponent }) => AccessDeniedPageComponent,
           ),
       },
     ],
   },
+  {
+    path: '**',
+    title: 'Página no encontrada | AgendaFlow',
+    loadComponent: () =>
+      import('./core/layout/not-found-page/not-found-page.component').then(
+        ({ NotFoundPageComponent }) => NotFoundPageComponent,
+      ),
+  },
 ];
+
+function moduleRoute(
+  path: string,
+  title: string,
+  permission: Permission,
+  description: string,
+  emptyTitle: string,
+  emptyDescription: string,
+  icon: string,
+) {
+  return {
+    path,
+    title: `${title} | AgendaFlow`,
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [permission],
+      page: { title, description, emptyTitle, emptyDescription, icon },
+    },
+    loadComponent: loadModulePlaceholder,
+  } satisfies Routes[number];
+}
 
 function loadModulePlaceholder() {
   return import('./core/layout/module-placeholder-page/module-placeholder-page.component').then(

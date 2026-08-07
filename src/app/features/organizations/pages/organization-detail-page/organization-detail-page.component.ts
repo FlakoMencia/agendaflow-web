@@ -14,6 +14,7 @@ import { MessageModule } from 'primeng/message';
 
 import { ApiError } from '../../../../core/http/api-error.model';
 import { mapApiError } from '../../../../core/http/api-error.mapper';
+import { AuthSessionService } from '../../../../core/security/auth-session.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import {
   StatusBadgeComponent,
@@ -32,12 +33,15 @@ export class OrganizationDetailPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly organizationsApi = inject(OrganizationsApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthSessionService);
 
   readonly organization = signal<Organization | null>(null);
   readonly loading = signal(true);
   readonly error = signal<ApiError | null>(null);
   readonly saved = this.route.snapshot.queryParamMap.get('saved');
   readonly organizationId = Number(this.route.snapshot.paramMap.get('organizationId'));
+  readonly canEdit = () => this.auth.hasPermission('ORGANIZATION_UPDATE');
+  readonly canViewBranches = () => this.auth.hasPermission('BRANCHES_VIEW');
 
   ngOnInit(): void {
     this.loadOrganization();

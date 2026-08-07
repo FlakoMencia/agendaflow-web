@@ -9,7 +9,7 @@
   <nav class="sidebar__nav" aria-label="Navegación principal">
     <p class="sidebar__section-label">Workspace</p>
     <ul>
-      @for (item of navigationItems; track item.route; let first = $first) {
+      @for (item of navigationItems(); track item.route; let first = $first) {
         <li>
           <a
             #firstLink
@@ -25,13 +25,16 @@
         </li>
       }
     </ul>
+    @if (!hasBusinessModules()) {
+      <p class="sidebar__empty">No modules are assigned to this account yet.</p>
+    }
   </nav>
 
   <div class="sidebar__phase">
-    <i class="pi pi-wrench" aria-hidden="true"></i>
+    <i class="pi pi-shield" aria-hidden="true"></i>
     <span>
-      <strong>Fase 2</strong>
-      <small>Organizations &amp; branches</small>
+      <strong>Fase 3</strong>
+      <small>Session &amp; authorization</small>
     </span>
   </div>
 </aside>

@@ -4,6 +4,8 @@ import { of } from 'rxjs';
 import { providePrimeNG } from 'primeng/config';
 
 import { AgendaFlowPreset } from '../../../../core/config/agendaflow.preset';
+import { AuthSessionService } from '../../../../core/security/auth-session.service';
+import { AuthSessionStub } from '../../../../testing/auth-fixtures';
 import { ORGANIZATION_FIXTURE } from '../../../../testing/api-fixtures';
 import { OrganizationsApiService } from '../../services/organizations-api.service';
 import { OrganizationDetailPageComponent } from './organization-detail-page.component';
@@ -16,6 +18,7 @@ describe('OrganizationDetailPageComponent', () => {
         provideRouter([]),
         providePrimeNG({ theme: { preset: AgendaFlowPreset } }),
         { provide: OrganizationsApiService, useValue: { get: () => of(ORGANIZATION_FIXTURE) } },
+        { provide: AuthSessionService, useValue: new AuthSessionStub() },
         {
           provide: ActivatedRoute,
           useValue: {

@@ -4,6 +4,8 @@ import { of } from 'rxjs';
 import { providePrimeNG } from 'primeng/config';
 
 import { AgendaFlowPreset } from '../../../../core/config/agendaflow.preset';
+import { AuthSessionService } from '../../../../core/security/auth-session.service';
+import { AuthSessionStub } from '../../../../testing/auth-fixtures';
 import { BRANCH_FIXTURE, ORGANIZATION_FIXTURE } from '../../../../testing/api-fixtures';
 import { OrganizationsApiService } from '../../../organizations/services/organizations-api.service';
 import { BranchesApiService } from '../../services/branches-api.service';
@@ -17,6 +19,7 @@ describe('BranchFormPageComponent', () => {
         provideRouter([]),
         providePrimeNG({ theme: { preset: AgendaFlowPreset } }),
         { provide: OrganizationsApiService, useValue: { get: () => of(ORGANIZATION_FIXTURE) } },
+        { provide: AuthSessionService, useValue: new AuthSessionStub() },
         {
           provide: BranchesApiService,
           useValue: {

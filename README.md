@@ -1,29 +1,27 @@
 # AgendaFlow Web
 
 Frontend Angular de AgendaFlow, una plataforma SaaS multiempresa para reservas y gestión de citas.
-Este repositorio ofrece la experiencia web de administración y consume la API principal de
-AgendaFlow.
+Este repositorio proporciona la experiencia web administrativa y consume exclusivamente la API
+principal de AgendaFlow.
 
 ## Estado
 
-**Fase 2 — Organizaciones y sucursales.** El primer módulo funcional permite listar, crear,
-consultar y editar organizaciones, además de listar, crear y editar sus sucursales. La aplicación
-mantiene el application shell responsive de la fase anterior y todavía no implementa
-autenticación.
+**Fase 3 — Login, sesión y autorización.** Están implementados el inicio de sesión contra la API,
+la restauración mediante `/auth/me`, el Bearer interceptor, los guards y la navegación basada en
+permisos. Las pantallas funcionales actuales siguen limitadas a organizaciones y sucursales.
 
-## Stack
+No hay refresh token, cookies, registro, recuperación de contraseña, selector de organización ni
+administración de usuarios.
+
+## Stack y requisitos
 
 - Node.js 24.18.1 y npm 11.16.0.
-- Angular y Angular CLI 22.0.x, TypeScript administrado por Angular, strict mode y componentes
-  standalone.
-- Angular Router, Reactive Forms, Signals y `HttpClient` oficiales.
-- PrimeNG Community 22.0.0, `@primeuix/themes` 3.0.0, preset Aura y PrimeIcons 8.0.0.
-- SCSS y Vitest mediante los builders oficiales de Angular 22.
+- Angular/CLI 22.0.x, TypeScript strict, componentes standalone, Router, Reactive Forms, Signals y
+  `HttpClient`.
+- PrimeNG Community 22.0.0, `@primeuix/themes` 3.0.0, Aura personalizado y PrimeIcons 8.0.0.
+- SCSS y Vitest mediante los builders oficiales de Angular.
 
-## Requisitos e instalación
-
-Se requieren exactamente Node.js 24.18.1 y npm 11.16.0. Se recomienda NVM; `.nvmrc` contiene la
-versión del proyecto.
+Se recomienda NVM y la versión declarada en `.nvmrc`:
 
 ```bash
 nvm install 24.18.1
@@ -33,7 +31,7 @@ npm --version
 npm install
 ```
 
-`package-lock.json` se conserva para instalaciones reproducibles.
+`package-lock.json` debe permanecer versionado para instalaciones reproducibles.
 
 ## Desarrollo, pruebas y build
 
@@ -43,84 +41,107 @@ npm run test:ci
 npm run build
 ```
 
-La aplicación se sirve en `http://localhost:4200`. El build de producción se genera en `dist/`;
-SSR, SSG y prerender permanecen deshabilitados.
+La web se sirve en `http://localhost:4200`; el build se genera en `dist/agendaflow-web`. SSR, SSG
+y prerender permanecen deshabilitados.
 
-## Integración con AgendaFlow API
+## API y login local
 
-La URL de desarrollo es `http://localhost:8080/api/v1` y se proporciona mediante el token tipado
-`API_CONFIG`. Para trabajar localmente, inicia primero `agendaflow-api` en el puerto 8080 y luego
-ejecuta `npm start`. La API debe permitir el origen `http://localhost:4200`; Angular no modifica ni
-elude CORS.
+La configuración tipada de desarrollo apunta a `http://localhost:8080/api/v1`. Para ejecutar el
+flujo completo:
 
-`OrganizationsApiService` consume los cuatro endpoints de organizaciones y `BranchesApiService`
-consume los cuatro endpoints anidados bajo `/organizations/{organizationId}/branches`. Toda
-operación de sucursal exige `organizationId`; no existe una llamada basada únicamente en
-`branchId`.
+1. inicia `agendaflow-api` en el puerto 8080 con CORS habilitado para `http://localhost:4200`;
+2. prepara en el backend un usuario activo, una membresía activa y sus roles/permisos;
+3. conoce el `organizationId` de esa membresía;
+4. ejecuta `npm start` y abre `http://localhost:4200/login`.
 
-Los IDs PostgreSQL `BIGINT`/Java `Long` se representan como `number` mientras permanezcan dentro
-del rango entero seguro de JavaScript (`Number.MAX_SAFE_INTEGER`). No se convierten a UUID.
+El campo `organizationId` del login es temporal hasta que exista un selector de organizaciones. No
+se incluyen credenciales ni datos mock en runtime.
 
-## Rutas funcionales
+## Sesión y seguridad
 
-- `/organizations`
-- `/organizations/new`
-- `/organizations/:organizationId`
-- `/organizations/:organizationId/edit`
-- `/organizations/:organizationId/branches`
-- `/organizations/:organizationId/branches/new`
-- `/organizations/:organizationId/branches/:branchId/edit`
+El navegador conserva únicamente el access token bajo una clave de `sessionStorage`. En una
+recarga, la aplicación llama `GET /auth/me` y reconstruye usuario, organización activa, roles y
+permisos desde el backend; el JWT no se decodifica como fuente de autorización.
 
-Las rutas técnicas anteriores (`/dashboard`, `/appointments`, `/customers`, `/specialists`,
-`/services`, `/branches` y `/settings`) y la página 404 siguen disponibles. Los módulos aún no
-implementados continúan mostrando placeholders honestos, sin datos simulados.
+El interceptor agrega `Authorization: Bearer` solo a URLs bajo la base de AgendaFlow API, nunca a
+`/auth/login`, URLs externas ni al microservicio Quarkus. Un 401 limpia la sesión y vuelve a login
+con una URL de retorno interna; un 403 dirige a `/access-denied`. El logout es local: elimina el
+token y los Signals, pero el token emitido podría seguir siendo válido en el servidor hasta
+expirar.
 
-## Organización del módulo
+`sessionStorage` es accesible a JavaScript y, por tanto, depende de prevenir XSS; también está
+aislado por pestaña, sobrevive recargas en esa pestaña y normalmente se elimina al cerrarla. Esta
+fase no implementa cookies HttpOnly, revocación ni refresh token.
+
+Los guards y el filtrado de navegación mejoran la UX, pero no son la barrera de seguridad. El
+backend valida siempre JWT, organización activa, rol y permiso.
+
+## Rutas
+
+Públicas:
+
+- `/login`
+- wildcard 404 técnico
+
+Autenticadas:
+
+- `/dashboard`
+- `/access-denied`
+- `/organizations` y `/organizations/:organizationId` — `ORGANIZATION_VIEW`
+- `/organizations/new` — rol `PLATFORM_ADMIN`
+- `/organizations/:organizationId/edit` — `ORGANIZATION_UPDATE`
+- `/organizations/:organizationId/branches` — `BRANCHES_VIEW`
+- creación/edición de sucursales — `BRANCHES_MANAGE`
+
+Los módulos técnicos futuros también se filtran por sus permisos de consulta. Un usuario normal ve
+solo su organización activa; un `PLATFORM_ADMIN` conserva el listado paginado global.
+
+## Estructura
 
 ```text
 src/app/
 ├── core/
-│   ├── config/       # URL tipada de API y preset visual
-│   ├── http/         # paginación, errores y validación compartida
-│   └── layout/       # application shell
+│   ├── config/       # API y preset visual
+│   ├── http/         # errores, paginación y formularios
+│   ├── layout/       # shell, topbar, sidebar, 403 y 404
+│   └── security/     # sesión, modelos, storage, interceptor y guards
 ├── features/
-│   ├── organizations/# modelos, servicio y páginas de organizaciones
-│   └── branches/     # modelos, servicio y páginas anidadas de sucursales
-└── shared/           # PageHeader, EmptyState y StatusBadge
+│   ├── auth/         # login
+│   ├── organizations/# listado, detalle, creación y edición
+│   └── branches/     # listado y formularios anidados
+├── shared/           # componentes visuales reutilizables
+└── testing/          # fixtures disponibles únicamente para pruebas
 ```
 
-Los listados mantienen Signals explícitas para `loading`, datos y error. Los formularios usan
-Reactive Forms tipados y un estado `saving` que impide dobles envíos. Los errores `400`, `404`,
-`409`, de red e inesperados se transforman en mensajes seguros; no se presentan HTML, JSON crudo,
-stack traces ni detalles internos.
+Los IDs PostgreSQL `BIGINT`/Java `Long` se representan como `number` mientras estén dentro de
+`Number.MAX_SAFE_INTEGER`; no se convierten en UUID.
 
-## Sistema visual y accesibilidad
+## Sistema visual, accesibilidad y PrimeNG
 
-El tema AgendaFlow extiende Aura con teal, slate, superficies claras y foco visible. Los listados
-usan PrimeNG Table en escritorio y tarjetas equivalentes en móvil para evitar desplazamiento
-horizontal descontrolado. Formularios, breadcrumbs, estados, mensajes y acciones conservan
-landmarks, labels, jerarquía de encabezados, navegación por teclado y `prefers-reduced-motion`.
+AgendaFlow extiende Aura con teal/slate, superficies claras, contraste, foco visible y layouts
+responsive. Login, shell, menús y errores usan controles con nombre accesible, landmarks y estados
+que no dependen solo del color. No se usa `innerHTML` para datos de API.
 
-Más detalle en [arquitectura](docs/architecture/README.md),
-[desarrollo](docs/development/README.md) y [sistema visual](docs/ui/README.md).
+El proyecto usa PrimeNG Community y compila sin claves. No debe guardarse una licencia en Git,
+`.env` ni archivos de ambiente. Una futura licencia comercial legítima deberá proporcionarse solo
+mediante configuración local ignorada, siguiendo la documentación oficial de PrimeNG.
 
-## PrimeNG Community y licencia
+Documentación adicional:
 
-El proyecto usa la edición Community y compila sin claves. No debe guardarse ninguna licencia en
-Git, `.env` ni archivos de ambiente. Si en el futuro se adopta una edición Commercial/LTS, la
-credencial legítima deberá proporcionarse mediante configuración local ignorada y siguiendo la
-[documentación oficial de PrimeNG](https://primeng.org/lts).
+- [Flujo de autenticación](docs/architecture/authentication.md)
+- [Routing y guards](docs/architecture/routing-and-guards.md)
+- [Login local](docs/development/local-login.md)
+- [UI de autenticación](docs/ui/authentication.md)
 
 ## Repositorios relacionados
 
 - [`agendaflow-api`](../agendaflow-api/README.md) — backend principal.
 - [`agendaflow-notification-service`](../agendaflow-notification-service/README.md) — microservicio
-  de notificaciones futuro.
+  de notificaciones; Angular no le envía tokens ni solicitudes directas.
 
 ## Aún no implementado
 
-- Login, JWT, guards, interceptor de autenticación, roles y permisos.
-- Clientes, especialistas, catálogo de servicios, citas y calendario.
-- Dashboard funcional, estado global, NgRx o integraciones de notificación.
-- Eliminación de organizaciones o sucursales.
-- SSR, PWA, Docker, despliegue y CI/CD.
+- Refresh token, cookies HttpOnly, revocación, MFA y autenticación social.
+- Registro, recuperación de contraseña, invitaciones y selector de organización.
+- Administración de usuarios, clientes, especialistas, servicios, citas y calendario.
+- Dashboard funcional, NgRx, integración directa con Quarkus, Docker, Azure y CI/CD.

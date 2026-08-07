@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, of } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
@@ -16,6 +16,8 @@ import { TableModule } from 'primeng/table';
 
 import { ApiError } from '../../../../core/http/api-error.model';
 import { mapApiError } from '../../../../core/http/api-error.mapper';
+import { ActiveOrganization } from '../../../../core/security/auth.models';
+import { AuthSessionService } from '../../../../core/security/auth-session.service';
 import { Organization } from '../../../organizations/models/organization.model';
 import { OrganizationsApiService } from '../../../organizations/services/organizations-api.service';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
@@ -44,16 +46,19 @@ export class BranchListPageComponent implements OnInit {
   private readonly organizationsApi = inject(OrganizationsApiService);
   private readonly branchesApi = inject(BranchesApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthSessionService);
 
   readonly organizationId = Number(this.route.snapshot.paramMap.get('organizationId'));
   readonly saved = this.route.snapshot.queryParamMap.get('saved');
-  readonly organization = signal<Organization | null>(null);
+  readonly organization = signal<Organization | ActiveOrganization | null>(null);
   readonly branches = signal<Branch[]>([]);
   readonly loading = signal(true);
   readonly error = signal<ApiError | null>(null);
   readonly page = signal(0);
   readonly size = signal(20);
   readonly totalElements = signal(0);
+  readonly canViewOrganization = () => this.auth.hasPermission('ORGANIZATION_VIEW');
+  readonly canManageBranches = () => this.auth.hasPermission('BRANCHES_MANAGE');
 
   ngOnInit(): void {
     this.loadBranches();
@@ -83,8 +88,15 @@ export class BranchListPageComponent implements OnInit {
 
     this.loading.set(true);
     this.error.set(null);
+    const activeOrganization = this.auth.activeOrganization();
+    const organizationRequest = this.canViewOrganization()
+      ? this.organizationsApi.get(this.organizationId)
+      : activeOrganization?.id === this.organizationId
+        ? of(activeOrganization)
+        : of(null);
+
     forkJoin({
-      organization: this.organizationsApi.get(this.organizationId),
+      organization: organizationRequest,
       branches: this.branchesApi.list(this.organizationId, {
         page,
         size: this.size(),
@@ -97,6 +109,16 @@ export class BranchListPageComponent implements OnInit {
       )
       .subscribe({
         next: ({ organization, branches }) => {
+          if (!organization) {
+            this.error.set({
+              timestamp: null,
+              status: 403,
+              code: 'ACCESS_DENIED',
+              message: 'This branch directory is outside the active organization.',
+              path: null,
+            });
+            return;
+          }
           this.organization.set(organization);
           this.branches.set([...branches.content]);
           this.page.set(branches.page);

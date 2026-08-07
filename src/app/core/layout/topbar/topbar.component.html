@@ -1,4 +1,4 @@
-<header class="topbar">
+<header class="topbar" (keydown.escape)="closeAccountMenu()">
   <div class="topbar__brand-group">
     <button
       #menuButton
@@ -23,11 +23,33 @@
     </span>
   </div>
 
-  <div class="account-placeholder" aria-label="Cuenta de usuario no implementada">
-    <i class="pi pi-user" aria-hidden="true"></i>
-    <span>
-      <strong>Cuenta</strong>
-      <small>No implementada</small>
-    </span>
-  </div>
+  @if (user(); as currentUser) {
+    <div class="account-menu">
+      <button
+        class="account-menu__trigger"
+        type="button"
+        aria-controls="session-menu"
+        [attr.aria-expanded]="accountMenuOpen()"
+        (click)="toggleAccountMenu()"
+      >
+        <span>
+          <strong>{{ displayName() }}</strong>
+          <small>{{ activeOrganization()?.tradeName || activeOrganization()?.legalName }}</small>
+        </span>
+        <i class="pi pi-chevron-down" aria-hidden="true"></i>
+      </button>
+      @if (accountMenuOpen()) {
+        <div id="session-menu" class="account-menu__panel" role="menu">
+          <div class="account-menu__identity">
+            <strong>{{ displayName() }}</strong>
+            <small>{{ currentUser.email }}</small>
+          </div>
+          <button type="button" role="menuitem" (click)="signOut()">
+            <i class="pi pi-sign-out" aria-hidden="true"></i>
+            <span>Sign out</span>
+          </button>
+        </div>
+      }
+    </div>
+  }
 </header>

@@ -5,6 +5,8 @@ import { providePrimeNG } from 'primeng/config';
 import { AppComponent } from './app';
 import { routes } from './app.routes';
 import { AgendaFlowPreset } from './core/config/agendaflow.preset';
+import { AuthSessionService } from './core/security/auth-session.service';
+import { AuthSessionStub } from './testing/auth-fixtures';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -13,6 +15,7 @@ describe('AppComponent', () => {
       providers: [
         provideRouter(routes),
         providePrimeNG({ theme: { preset: AgendaFlowPreset } }),
+        { provide: AuthSessionService, useValue: new AuthSessionStub() },
       ],
     }).compileComponents();
   });
@@ -80,11 +83,11 @@ describe('AppComponent', () => {
     expect(document.activeElement).toBe(menuButton);
   });
 
-  it('should navigate unknown paths to the 404 page inside the shell', async () => {
+  it('should navigate unknown paths to the public technical 404 page', async () => {
     const fixture = await renderRoute('/ruta-inexistente');
     const content = fixture.nativeElement.textContent as string;
 
-    expect(fixture.nativeElement.querySelector('app-shell')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-shell')).toBeFalsy();
     expect(content).toContain('Error 404');
     expect(content).toContain('Página no encontrada');
   });
