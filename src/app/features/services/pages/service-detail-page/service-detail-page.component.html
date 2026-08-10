@@ -1,0 +1,18 @@
+<section class="feature-page" aria-labelledby="service-detail-title">
+  <app-page-header [title]="service()?.name || 'Service details'" headingId="service-detail-title" description="Service configuration and branch availability." [breadcrumbs]="['Services', service()?.name || 'Details']">
+    <div pageActions class="header-actions"><a pButton class="secondary-action" routerLink="/services"><i class="pi pi-arrow-left" aria-hidden="true"></i><span>Services</span></a>@if (canManage() && service()) { <a pButton class="primary-action" [routerLink]="['/services', serviceId, 'edit']"><i class="pi pi-pencil" aria-hidden="true"></i><span>Edit service</span></a> }</div>
+  </app-page-header>
+  @if (saved) { <p-message severity="success">Service {{ saved === 'created' ? 'created' : 'updated' }} successfully.</p-message> }
+  @if (loading()) { <div class="state-panel" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading service</strong></div> }
+  @else if (error(); as loadError) { <div class="state-stack" role="alert"><p-message severity="error">{{ loadError.message }}</p-message><button pButton type="button" class="secondary-action" (click)="retry()">Retry</button></div> }
+  @else if (service(); as item) {
+    <article class="detail-surface"><header class="detail-identity"><div><p class="eyebrow">Service</p><h2>{{ item.name }}</h2><p>{{ item.description || 'No description provided.' }}</p></div><app-status-badge [status]="item.active ? 'active' : 'inactive'" /></header>
+      <div class="detail-grid"><section><h3>Scheduling</h3><dl class="detail-list"><div><dt>Duration</dt><dd>{{ item.durationMinutes }} min</dd></div><div><dt>Preparation / cleanup</dt><dd>{{ item.preparationMinutes }} / {{ item.cleanupMinutes }} min</dd></div></dl></section><section><h3>Commercial</h3><dl class="detail-list"><div><dt>Price</dt><dd>{{ item.price === null ? 'Not set' : item.currencyCode + ' ' + item.price.toFixed(2) }}</dd></div><div><dt>Online booking</dt><dd>{{ item.allowsOnlineBooking ? 'Allowed' : 'Internal only' }}</dd></div><div><dt>Approval</dt><dd>{{ item.requiresApproval ? 'Required' : 'Not required' }}</dd></div></dl></section></div>
+    </article>
+    <section class="form-section" aria-labelledby="branch-availability-heading"><div class="form-section__heading"><div><p class="eyebrow">Assignments</p><h2 id="branch-availability-heading">Available at branches</h2></div><p>Inactive assignments remain stored and can be enabled again.</p></div>
+      @if (assignmentError(); as errorMessage) { <p-message severity="error">{{ errorMessage.message }}</p-message> }
+      @if (branches().length === 0) { <p class="muted-copy">No branches are available in the active organization.</p> }
+      @else { <div class="assignment-grid">@for (item of branches(); track item.branch.id) { <article class="assignment-card"><div><h3>{{ item.branch.name }}</h3><p>{{ item.branch.code || 'No branch code' }}</p></div><app-status-badge [status]="item.active ? 'active' : 'inactive'" />@if (canManage()) { <button pButton type="button" class="secondary-action" [disabled]="item.saving" (click)="toggleBranch(item)">{{ item.saving ? 'Saving…' : item.active ? 'Disable' : 'Enable' }}</button> }</article> }</div> }
+    </section>
+  }
+</section>

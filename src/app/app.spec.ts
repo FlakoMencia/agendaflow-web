@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { providePrimeNG } from 'primeng/config';
 
 import { AppComponent } from './app';
 import { routes } from './app.routes';
 import { AgendaFlowPreset } from './core/config/agendaflow.preset';
+import { PageResponse } from './core/http/page-response.model';
 import { AuthSessionService } from './core/security/auth-session.service';
+import { CatalogService } from './features/services/models/service-catalog.model';
+import { ServicesApiService } from './features/services/services/services-api.service';
 import { AuthSessionStub } from './testing/auth-fixtures';
 
 describe('AppComponent', () => {
@@ -16,6 +20,21 @@ describe('AppComponent', () => {
         provideRouter(routes),
         providePrimeNG({ theme: { preset: AgendaFlowPreset } }),
         { provide: AuthSessionService, useValue: new AuthSessionStub() },
+        {
+          provide: ServicesApiService,
+          useValue: {
+            list: () =>
+              of<PageResponse<CatalogService>>({
+                content: [],
+                page: 0,
+                size: 20,
+                totalElements: 0,
+                totalPages: 0,
+                first: true,
+                last: true,
+              }),
+          },
+        },
       ],
     }).compileComponents();
   });
@@ -50,9 +69,7 @@ describe('AppComponent', () => {
 
     expect(router.url).toBe('/services');
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Services');
-    expect(fixture.nativeElement.textContent).toContain(
-      'Catálogo de servicios aún no implementado',
-    );
+    expect(fixture.nativeElement.textContent).toContain('No services yet');
   });
 
   it('should open and close the mobile navigation and restore menu focus', async () => {

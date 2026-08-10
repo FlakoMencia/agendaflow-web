@@ -323,7 +323,8 @@
 }
 
 .form-field input,
-.form-field select {
+.form-field select,
+.form-field textarea {
   width: 100%;
   min-height: 2.75rem;
 }
@@ -335,6 +336,17 @@
   background: var(--af-surface);
   color: var(--af-text);
   font: inherit;
+}
+
+.form-field textarea,
+.compact-fields input {
+  padding: var(--af-space-3);
+  border: 1px solid var(--af-border);
+  border-radius: 0.4rem;
+  background: var(--af-surface);
+  color: var(--af-text);
+  font: inherit;
+  resize: vertical;
 }
 
 .field-error {
@@ -391,6 +403,167 @@
   padding-bottom: var(--af-space-4);
 }
 
+.assignment-grid,
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--af-space-4);
+}
+
+.assignment-card,
+.day-card,
+.block-card {
+  border: 1px solid var(--af-border);
+  border-radius: var(--af-radius-sm);
+  background: var(--af-surface);
+}
+
+.assignment-card {
+  display: grid;
+  gap: var(--af-space-3);
+  padding: var(--af-space-4);
+  align-content: start;
+}
+
+.assignment-card h2,
+.assignment-card h3,
+.day-card h3,
+.block-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.assignment-card p,
+.day-card p,
+.block-card p {
+  margin: var(--af-space-1) 0 0;
+  color: var(--af-text-muted);
+  font-size: 0.8rem;
+}
+
+.assignment-card--form > label {
+  display: inline-flex;
+  gap: var(--af-space-2);
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.assignment-card--form input[type='checkbox'] {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--af-primary-600);
+}
+
+.compact-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--af-space-3);
+}
+
+.compact-fields label {
+  display: grid;
+  gap: var(--af-space-1);
+  color: var(--af-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.compact-fields input {
+  width: 100%;
+  min-width: 0;
+}
+
+.muted-copy {
+  color: var(--af-text-muted);
+}
+
+.day-card {
+  min-height: 9rem;
+  padding: var(--af-space-4);
+}
+
+.day-card header {
+  display: flex;
+  gap: var(--af-space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-text-button {
+  display: inline-flex;
+  gap: var(--af-space-1);
+  padding: 0.35rem 0.5rem;
+  align-items: center;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--af-primary-700);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.time-slots {
+  display: grid;
+  gap: var(--af-space-2);
+  margin-top: var(--af-space-3);
+}
+
+.time-slot {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  padding: var(--af-space-3);
+  border: 1px solid var(--af-primary-100);
+  border-radius: 0.45rem;
+  background: var(--af-primary-50);
+  color: var(--af-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.time-slot:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.time-slot span,
+.time-slot small {
+  color: var(--af-text-muted);
+  font-size: 0.72rem;
+}
+
+.time-slot--inactive {
+  border-style: dashed;
+  background: var(--af-surface-subtle);
+}
+
+.block-list {
+  display: grid;
+  gap: var(--af-space-3);
+}
+
+.block-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: var(--af-space-4);
+  padding: var(--af-space-4);
+  align-items: center;
+}
+
+.block-card__icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: var(--af-danger);
+}
+
 @media (max-width: 52rem) {
   .data-surface--desktop {
     display: none;
@@ -415,6 +588,11 @@
   .form-field--wide {
     grid-column: auto;
   }
+
+  .assignment-grid,
+  .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 35rem) {
@@ -437,5 +615,21 @@
 
   .form-section__heading > p {
     text-align: left;
+  }
+
+  .assignment-grid,
+  .week-grid,
+  .compact-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .block-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .block-card > app-status-badge,
+  .block-card > button {
+    grid-column: 2;
+    justify-self: start;
   }
 }

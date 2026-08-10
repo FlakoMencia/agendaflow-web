@@ -131,24 +131,106 @@ export const routes: Routes = [
         'Los perfiles, historiales y acciones sobre clientes se agregarán más adelante.',
         'pi pi-users',
       ),
-      moduleRoute(
-        'specialists',
-        'Specialists',
-        'SPECIALISTS_VIEW',
-        'Espacio reservado para especialistas y sus asignaciones.',
-        'Especialistas aún no implementados',
-        'Perfiles profesionales, servicios y disponibilidad se incorporarán después.',
-        'pi pi-id-card',
-      ),
-      moduleRoute(
-        'services',
-        'Services',
-        'SERVICES_VIEW',
-        'Espacio reservado para el catálogo futuro de servicios.',
-        'Catálogo de servicios aún no implementado',
-        'La definición de servicios, duración y disponibilidad llegará en otra fase.',
-        'pi pi-briefcase',
-      ),
+      {
+        path: 'services',
+        title: 'Services | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SERVICES_VIEW'] },
+        loadComponent: () =>
+          import('./features/services/pages/service-list-page/service-list-page.component').then(
+            ({ ServiceListPageComponent }) => ServiceListPageComponent,
+          ),
+      },
+      {
+        path: 'services/new',
+        title: 'New service | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SERVICES_MANAGE'] },
+        loadComponent: () =>
+          import('./features/services/pages/service-form-page/service-form-page.component').then(
+            ({ ServiceFormPageComponent }) => ServiceFormPageComponent,
+          ),
+      },
+      {
+        path: 'services/categories',
+        title: 'Service categories | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SERVICES_VIEW'] },
+        loadComponent: () =>
+          import('./features/services/pages/service-categories-page/service-categories-page.component').then(
+            ({ ServiceCategoriesPageComponent }) => ServiceCategoriesPageComponent,
+          ),
+      },
+      {
+        path: 'services/:serviceId/edit',
+        title: 'Edit service | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SERVICES_MANAGE'] },
+        loadComponent: () =>
+          import('./features/services/pages/service-form-page/service-form-page.component').then(
+            ({ ServiceFormPageComponent }) => ServiceFormPageComponent,
+          ),
+      },
+      {
+        path: 'services/:serviceId',
+        title: 'Service details | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SERVICES_VIEW'] },
+        loadComponent: () =>
+          import('./features/services/pages/service-detail-page/service-detail-page.component').then(
+            ({ ServiceDetailPageComponent }) => ServiceDetailPageComponent,
+          ),
+      },
+      {
+        path: 'specialists',
+        title: 'Specialists | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SPECIALISTS_VIEW'] },
+        loadComponent: () =>
+          import('./features/specialists/pages/specialist-list-page/specialist-list-page.component').then(
+            ({ SpecialistListPageComponent }) => SpecialistListPageComponent,
+          ),
+      },
+      {
+        path: 'specialists/new',
+        title: 'New specialist | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SPECIALISTS_MANAGE'] },
+        loadComponent: () =>
+          import('./features/specialists/pages/specialist-form-page/specialist-form-page.component').then(
+            ({ SpecialistFormPageComponent }) => SpecialistFormPageComponent,
+          ),
+      },
+      {
+        path: 'specialists/:specialistId/edit',
+        title: 'Edit specialist | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SPECIALISTS_MANAGE'] },
+        loadComponent: () =>
+          import('./features/specialists/pages/specialist-form-page/specialist-form-page.component').then(
+            ({ SpecialistFormPageComponent }) => SpecialistFormPageComponent,
+          ),
+      },
+      {
+        path: 'specialists/:specialistId/availability',
+        title: 'Specialist availability | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SCHEDULE_VIEW'] },
+        loadComponent: () =>
+          import(
+            './features/specialists/pages/specialist-availability-page/specialist-availability-page.component'
+          ).then(({ SpecialistAvailabilityPageComponent }) => SpecialistAvailabilityPageComponent),
+      },
+      {
+        path: 'specialists/:specialistId',
+        title: 'Specialist details | AgendaFlow',
+        canActivate: [permissionGuard],
+        data: { permissions: ['SPECIALISTS_VIEW'] },
+        loadComponent: () =>
+          import(
+            './features/specialists/pages/specialist-detail-page/specialist-detail-page.component'
+          ).then(({ SpecialistDetailPageComponent }) => SpecialistDetailPageComponent),
+      },
       moduleRoute(
         'branches',
         'Branches',

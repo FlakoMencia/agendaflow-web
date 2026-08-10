@@ -1,29 +1,29 @@
 # Arquitectura
 
-AgendaFlow Web usa componentes standalone, rutas lazy y un application shell común. La Fase 3
-incorpora sesión con Signals, interceptor Bearer y autorización sin NgRx.
+AgendaFlow Web usa componentes standalone, rutas lazy y un application shell común. La sesión,
+el interceptor Bearer y los guards permanecen en `core/security`; no se usa un store global.
 
 ## Capas principales
 
 ```text
 AppComponent
-├── estado de restauración
 └── Router
     ├── /login (público)
     ├── AppShellComponent (autenticado)
-    │   ├── TopbarComponent
-    │   ├── SidebarComponent
-    │   └── RouterOutlet de features
+    │   ├── organizaciones y sucursales
+    │   ├── catálogo de servicios
+    │   └── especialistas, disponibilidad y bloqueos
     └── 404 técnico (público)
 ```
 
-`core/security` contiene modelos del contrato, sesión, storage, interceptor y guards.
-`features/auth` contiene solo la página de login. Organizaciones y sucursales conservan modelos,
-servicios HTTP y páginas propias.
+Cada feature de Fase 4 contiene modelos de contrato, servicios HTTP y páginas standalone. Las
+páginas usan Signals locales para `loading`, datos, `saving` y errores; los formularios son Reactive
+Forms tipados. Los clientes construyen las URLs desde `API_CONFIG`, reciben siempre el
+`organizationId` de la sesión activa y dejan la autenticación al interceptor.
 
-Los servicios construyen URLs desde `API_CONFIG`; el interceptor se restringe a esa base. Las
-páginas usan Signals locales para carga/error/guardado y Reactive Forms tipados. Los IDs se validan
-como enteros positivos y se representan como `number`, con el límite de `Number.MAX_SAFE_INTEGER`.
+Los IDs PostgreSQL `BIGINT` se representan como `number` dentro de `Number.MAX_SAFE_INTEGER`. Los
+importes se muestran como números decimales sin realizar cálculos financieros en el navegador.
 
-Más detalle en [autenticación](authentication.md) y
-[routing y guards](routing-and-guards.md).
+Más detalle en [autenticación](authentication.md), [routing y guards](routing-and-guards.md),
+[servicios y especialistas](../ui/services-and-specialists.md) y
+[disponibilidad](../ui/availability.md).

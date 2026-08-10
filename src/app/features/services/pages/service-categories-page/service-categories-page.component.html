@@ -1,0 +1,17 @@
+<section class="feature-page" aria-labelledby="categories-title">
+  <app-page-header title="Service categories" headingId="categories-title" description="Organize the service catalog for the active organization." [breadcrumbs]="['Services', 'Categories']">
+    <div pageActions class="header-actions"><a pButton class="secondary-action" routerLink="/services"><i class="pi pi-arrow-left" aria-hidden="true"></i><span>Services</span></a>@if (canManage()) { <button pButton type="button" class="primary-action" (click)="openCreate()"><i class="pi pi-plus" aria-hidden="true"></i><span>New category</span></button> }</div>
+  </app-page-header>
+  @if (editorOpen()) {
+    <form class="form-section category-editor" [formGroup]="form" (ngSubmit)="save()" novalidate aria-labelledby="category-form-title">
+      <div class="form-section__heading"><div><p class="eyebrow">Category</p><h2 id="category-form-title">{{ editingId() ? 'Edit category' : 'New category' }}</h2></div><p>Categories remain scoped to the active organization.</p></div>
+      @if (error(); as saveError) { <p-message severity="error">{{ saveError.message }}</p-message> }
+      <div class="form-grid"><div class="form-field"><label for="category-name">Name <span aria-hidden="true">*</span></label><input pInputText id="category-name" formControlName="name" maxlength="120" />@if (form.controls.name.touched && form.controls.name.invalid) { <small class="field-error">Enter a category name.</small> }</div><div class="form-field form-field--wide"><label for="category-description">Description</label><textarea id="category-description" formControlName="description" rows="3"></textarea></div><label class="toggle-field toggle-field--compact"><input type="checkbox" formControlName="active" /><span><strong>Active category</strong><small>Available when classifying services.</small></span></label></div>
+      <div class="form-actions"><button pButton type="button" class="secondary-action" (click)="cancel()">Cancel</button><button pButton type="submit" class="primary-action" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save category' }}</button></div>
+    </form>
+  }
+  @if (loading()) { <div class="state-panel" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading categories</strong></div> }
+  @else if (error() && !editorOpen()) { <div class="state-stack" role="alert"><p-message severity="error">{{ error()!.message }}</p-message><button pButton type="button" class="secondary-action" (click)="retry()">Retry</button></div> }
+  @else if (categories().length === 0) { <app-empty-state title="No categories yet" description="Services can remain uncategorized or be organized here." icon="pi pi-tags" /> }
+  @else { <div class="assignment-grid">@for (category of categories(); track category.id) { <article class="assignment-card"><div><h2>{{ category.name }}</h2><p>{{ category.description || 'No description' }}</p></div><app-status-badge [status]="category.active ? 'active' : 'inactive'" />@if (canManage()) { <button pButton type="button" class="secondary-action" (click)="openEdit(category)"><i class="pi pi-pencil" aria-hidden="true"></i><span>Edit</span></button> }</article> }</div> }
+</section>

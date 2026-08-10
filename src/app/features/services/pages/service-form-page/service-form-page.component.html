@@ -1,0 +1,31 @@
+<section class="feature-page" [attr.aria-labelledby]="editing ? 'edit-service-title' : 'new-service-title'">
+  <app-page-header [title]="editing ? 'Edit service' : 'New service'" [headingId]="editing ? 'edit-service-title' : 'new-service-title'" description="Define timing, pricing and booking behavior for the active organization." [breadcrumbs]="['Services', editing ? 'Edit' : 'New']" />
+  @if (loading()) { <div class="state-panel" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading service</strong></div> }
+  @else if (!loaded() && error(); as loadError) { <div class="state-stack" role="alert"><p-message severity="error">{{ loadError.message }}</p-message><a pButton class="secondary-action" routerLink="/services">Back to services</a></div> }
+  @else {
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (error(); as saveError) { <p-message severity="error">{{ saveError.message }}</p-message> }
+      <section class="form-section" aria-labelledby="service-profile-heading"><div class="form-section__heading"><div><p class="eyebrow">Catalog</p><h2 id="service-profile-heading">Service profile</h2></div><p>Required fields are marked with an asterisk.</p></div>
+        <div class="form-grid">
+          <div class="form-field form-field--wide"><label for="service-name">Name <span aria-hidden="true">*</span></label><input pInputText id="service-name" formControlName="name" maxlength="150" />@if (fieldError('name', 'Name'); as message) { <small class="field-error">{{ message }}</small> }</div>
+          <div class="form-field"><label for="service-category">Category</label><select id="service-category" formControlName="categoryId"><option [ngValue]="null">Uncategorized</option>@for (category of categories(); track category.id) { <option [ngValue]="category.id">{{ category.name }}</option> }</select></div>
+          <div class="form-field"><label for="service-color">Color token</label><input pInputText id="service-color" formControlName="colorCode" maxlength="20" placeholder="#0F766E" /></div>
+          <div class="form-field form-field--wide"><label for="service-description">Description</label><textarea id="service-description" formControlName="description" rows="4"></textarea></div>
+        </div>
+      </section>
+      <section class="form-section" aria-labelledby="service-timing-heading"><div class="form-section__heading"><div><p class="eyebrow">Scheduling</p><h2 id="service-timing-heading">Timing and price</h2></div><p>Preparation and cleanup extend the operational slot.</p></div>
+        <div class="form-grid form-grid--three">
+          <div class="form-field"><label for="duration">Duration (minutes) <span aria-hidden="true">*</span></label><input pInputText id="duration" type="number" min="1" formControlName="durationMinutes" />@if (fieldError('durationMinutes', 'Duration'); as message) { <small class="field-error">{{ message }}</small> }</div>
+          <div class="form-field"><label for="preparation">Preparation</label><input pInputText id="preparation" type="number" min="0" formControlName="preparationMinutes" /></div>
+          <div class="form-field"><label for="cleanup">Cleanup</label><input pInputText id="cleanup" type="number" min="0" formControlName="cleanupMinutes" /></div>
+          <div class="form-field"><label for="price">Price</label><input pInputText id="price" type="number" min="0" step="0.01" formControlName="price" /></div>
+          <div class="form-field"><label for="currency">Currency</label><input pInputText id="currency" formControlName="currencyCode" maxlength="3" />@if (fieldError('currencyCode', 'Currency'); as message) { <small class="field-error">{{ message }}</small> }</div>
+        </div>
+      </section>
+      <section class="form-section" aria-labelledby="service-options-heading"><div class="form-section__heading"><div><p class="eyebrow">Behavior</p><h2 id="service-options-heading">Availability options</h2></div></div>
+        <div class="toggle-grid"><label class="toggle-field"><input type="checkbox" formControlName="active" /><span><strong>Active</strong><small>Visible in operational catalog views.</small></span></label><label class="toggle-field"><input type="checkbox" formControlName="allowsOnlineBooking" /><span><strong>Online booking</strong><small>Eligible for future self-service booking.</small></span></label><label class="toggle-field"><input type="checkbox" formControlName="requiresApproval" /><span><strong>Approval required</strong><small>Future requests need staff approval.</small></span></label></div>
+      </section>
+      <div class="form-actions"><a pButton class="secondary-action" routerLink="/services">Cancel</a><button pButton type="submit" class="primary-action" [disabled]="saving()"><i [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i><span>{{ saving() ? 'Saving…' : editing ? 'Save changes' : 'Create service' }}</span></button></div>
+    </form>
+  }
+</section>

@@ -1,12 +1,14 @@
 # Sistema visual
 
-AgendaFlow conserva el preset Aura personalizado, la paleta teal/slate, superficies claras, bordes
-suaves y sombras discretas. Los estilos propios usan tokens, Grid y Flexbox; no dependen de
-`::ng-deep` ni selectores internos frágiles de PrimeNG.
+AgendaFlow conserva Aura personalizado, la paleta teal/slate, superficies claras, bordes suaves y
+sombras discretas. Los estilos propios usan design tokens, Grid y Flexbox; no dependen de
+`::ng-deep` ni de selectores internos de PrimeNG.
 
-Listados, tarjetas responsive, formularios, estados de carga/error y navegación mantienen labels,
-foco visible, landmarks y textos además del color. Las transiciones respetan
+Los listados tienen tabla para escritorio y tarjetas para pantallas estrechas. Formularios,
+asignaciones, disponibilidad semanal y bloqueos mantienen labels, foco visible, landmarks, estados
+textuales además del color y controles utilizables con teclado. Las transiciones globales respetan
 `prefers-reduced-motion`.
 
-Consulta [autenticación](authentication.md) para los patrones de login, menú de sesión, navegación
-autorizada y pantalla 403.
+- [Servicios y especialistas](services-and-specialists.md)
+- [Disponibilidad y bloqueos](availability.md)
+- [Autenticación](authentication.md)

@@ -6,12 +6,14 @@ principal de AgendaFlow.
 
 ## Estado
 
-**Fase 3 — Login, sesión y autorización.** Están implementados el inicio de sesión contra la API,
-la restauración mediante `/auth/me`, el Bearer interceptor, los guards y la navegación basada en
-permisos. Las pantallas funcionales actuales siguen limitadas a organizaciones y sucursales.
+**Fase 4 — servicios, especialistas y disponibilidad.** Están implementados el catálogo de
+servicios, categorías, asignaciones a sucursales, perfiles de especialistas, asignaciones de
+sucursales y servicios, disponibilidad recurrente y schedule blocks. Se conservan el shell,
+organizaciones, sucursales, autenticación JWT, sesión, guards, permisos y manejo de 401/403 de las
+fases anteriores.
 
-No hay refresh token, cookies, registro, recuperación de contraseña, selector de organización ni
-administración de usuarios.
+Todavía no existen citas, calendario de reservas, clientes, selector de organización, refresh token
+ni administración de usuarios.
 
 ## Stack y requisitos
 
@@ -31,7 +33,8 @@ npm --version
 npm install
 ```
 
-`package-lock.json` debe permanecer versionado para instalaciones reproducibles.
+`package-lock.json` permanece versionado para instalaciones reproducibles. La Fase 4 no agrega
+dependencias.
 
 ## Desarrollo, pruebas y build
 
@@ -39,99 +42,90 @@ npm install
 npm start
 npm run test:ci
 npm run build
+npm audit --omit=dev
 ```
 
 La web se sirve en `http://localhost:4200`; el build se genera en `dist/agendaflow-web`. SSR, SSG
-y prerender permanecen deshabilitados.
+y prerender permanecen deshabilitados. Todos los features de negocio se cargan mediante rutas lazy.
 
-## API y login local
+## API y sesión local
 
 La configuración tipada de desarrollo apunta a `http://localhost:8080/api/v1`. Para ejecutar el
 flujo completo:
 
 1. inicia `agendaflow-api` en el puerto 8080 con CORS habilitado para `http://localhost:4200`;
-2. prepara en el backend un usuario activo, una membresía activa y sus roles/permisos;
-3. conoce el `organizationId` de esa membresía;
-4. ejecuta `npm start` y abre `http://localhost:4200/login`.
+2. prepara un usuario, membresía y permisos activos en el backend;
+3. inicia sesión con el `organizationId` de esa membresía;
+4. ejecuta `npm start`.
 
-El campo `organizationId` del login es temporal hasta que exista un selector de organizaciones. No
-se incluyen credenciales ni datos mock en runtime.
+El `organizationId` usado por servicios, especialistas y horarios proviene siempre de la sesión
+activa. No existe un campo editable para cambiar el tenant y no hay datos mock en runtime.
 
-## Sesión y seguridad
+El navegador conserva únicamente el access token en `sessionStorage`. El interceptor agrega
+`Authorization: Bearer` solo a la API principal; un 401 limpia la sesión y un 403 dirige a
+`/access-denied`. Guards y ocultamiento de acciones mejoran la UX, pero el backend valida siempre
+JWT, tenant y permisos.
 
-El navegador conserva únicamente el access token bajo una clave de `sessionStorage`. En una
-recarga, la aplicación llama `GET /auth/me` y reconstruye usuario, organización activa, roles y
-permisos desde el backend; el JWT no se decodifica como fuente de autorización.
+## Rutas de Fase 4
 
-El interceptor agrega `Authorization: Bearer` solo a URLs bajo la base de AgendaFlow API, nunca a
-`/auth/login`, URLs externas ni al microservicio Quarkus. Un 401 limpia la sesión y vuelve a login
-con una URL de retorno interna; un 403 dirige a `/access-denied`. El logout es local: elimina el
-token y los Signals, pero el token emitido podría seguir siendo válido en el servidor hasta
-expirar.
+Servicios:
 
-`sessionStorage` es accesible a JavaScript y, por tanto, depende de prevenir XSS; también está
-aislado por pestaña, sobrevive recargas en esa pestaña y normalmente se elimina al cerrarla. Esta
-fase no implementa cookies HttpOnly, revocación ni refresh token.
+- `/services` y `/services/:serviceId` — `SERVICES_VIEW`.
+- `/services/new` y `/services/:serviceId/edit` — `SERVICES_MANAGE`.
+- `/services/categories` — lectura con `SERVICES_VIEW`, cambios con `SERVICES_MANAGE`.
 
-Los guards y el filtrado de navegación mejoran la UX, pero no son la barrera de seguridad. El
-backend valida siempre JWT, organización activa, rol y permiso.
+Especialistas y horarios:
 
-## Rutas
+- `/specialists` y `/specialists/:specialistId` — `SPECIALISTS_VIEW`.
+- `/specialists/new` y `/specialists/:specialistId/edit` — `SPECIALISTS_MANAGE`.
+- `/specialists/:specialistId/availability` — `SCHEDULE_VIEW`; cambios con `SCHEDULE_MANAGE`.
 
-Públicas:
-
-- `/login`
-- wildcard 404 técnico
-
-Autenticadas:
-
-- `/dashboard`
-- `/access-denied`
-- `/organizations` y `/organizations/:organizationId` — `ORGANIZATION_VIEW`
-- `/organizations/new` — rol `PLATFORM_ADMIN`
-- `/organizations/:organizationId/edit` — `ORGANIZATION_UPDATE`
-- `/organizations/:organizationId/branches` — `BRANCHES_VIEW`
-- creación/edición de sucursales — `BRANCHES_MANAGE`
-
-Los módulos técnicos futuros también se filtran por sus permisos de consulta. Un usuario normal ve
-solo su organización activa; un `PLATFORM_ADMIN` conserva el listado paginado global.
+Las rutas anteriores de login, dashboard, organizaciones, sucursales, acceso denegado y 404 siguen
+disponibles.
 
 ## Estructura
 
 ```text
 src/app/
-├── core/
-│   ├── config/       # API y preset visual
-│   ├── http/         # errores, paginación y formularios
-│   ├── layout/       # shell, topbar, sidebar, 403 y 404
-│   └── security/     # sesión, modelos, storage, interceptor y guards
+├── core/                    # API, HTTP, shell, sesión, interceptor y guards
 ├── features/
-│   ├── auth/         # login
-│   ├── organizations/# listado, detalle, creación y edición
-│   └── branches/     # listado y formularios anidados
-├── shared/           # componentes visuales reutilizables
-└── testing/          # fixtures disponibles únicamente para pruebas
+│   ├── auth/                # login
+│   ├── organizations/       # organizaciones
+│   ├── branches/            # sucursales
+│   ├── services/            # categorías, servicios y asignaciones a branches
+│   └── specialists/         # perfiles, asignaciones, availability y blocks
+├── shared/                  # componentes visuales reutilizables
+└── testing/                 # fixtures y contratos solo para pruebas
 ```
 
-Los IDs PostgreSQL `BIGINT`/Java `Long` se representan como `number` mientras estén dentro de
-`Number.MAX_SAFE_INTEGER`; no se convierten en UUID.
+Los IDs PostgreSQL `BIGINT`/Java `Long` se representan como `number` mientras permanezcan dentro de
+`Number.MAX_SAFE_INTEGER`. Los valores monetarios son de presentación; no se implementa aritmética
+financiera compleja en el frontend.
 
-## Sistema visual, accesibilidad y PrimeNG
+## UI, disponibilidad y errores
 
-AgendaFlow extiende Aura con teal/slate, superficies claras, contraste, foco visible y layouts
-responsive. Login, shell, menús y errores usan controles con nombre accesible, landmarks y estados
-que no dependen solo del color. No se usa `innerHTML` para datos de API.
+AgendaFlow extiende Aura con teal/slate, superficies claras, foco visible y layouts responsive. Las
+tablas de escritorio se convierten en cards en móvil. Availability usa siete cards semanales; los
+schedule blocks usan filas compactas. No se instala FullCalendar ni se dibujan slots o citas.
 
-El proyecto usa PrimeNG Community y compila sin claves. No debe guardarse una licencia en Git,
-`.env` ni archivos de ambiente. Una futura licencia comercial legítima deberá proporcionarse solo
-mediante configuración local ignorada, siguiendo la documentación oficial de PrimeNG.
+Los formularios realizan validaciones básicas y el backend sigue siendo fuente de verdad. Un
+solapamiento conserva abierto el editor y muestra un mensaje específico. Los servicios compartidos
+traducen errores conocidos 400/403/404/409 sin exponer mensajes internos.
 
 Documentación adicional:
 
-- [Flujo de autenticación](docs/architecture/authentication.md)
-- [Routing y guards](docs/architecture/routing-and-guards.md)
-- [Login local](docs/development/local-login.md)
-- [UI de autenticación](docs/ui/authentication.md)
+- [Arquitectura](docs/architecture/README.md)
+- [Desarrollo](docs/development/README.md)
+- [Servicios y especialistas](docs/ui/services-and-specialists.md)
+- [Disponibilidad y bloqueos](docs/ui/availability.md)
+- [Autenticación](docs/architecture/authentication.md)
+
+## PrimeNG Community
+
+El proyecto usa PrimeNG Community y compila sin claves guardadas en Git. No se incluyen componentes
+PRO. Si en el futuro se adquiere una licencia comercial, debe proporcionarse solo mediante
+configuración local ignorada y conforme a la documentación oficial de PrimeNG; nunca en `.env`,
+archivos de ambiente o código fuente versionado.
 
 ## Repositorios relacionados
 
@@ -141,7 +135,7 @@ Documentación adicional:
 
 ## Aún no implementado
 
-- Refresh token, cookies HttpOnly, revocación, MFA y autenticación social.
-- Registro, recuperación de contraseña, invitaciones y selector de organización.
-- Administración de usuarios, clientes, especialistas, servicios, citas y calendario.
-- Dashboard funcional, NgRx, integración directa con Quarkus, Docker, Azure y CI/CD.
+- Appointments, calendario de citas, clientes, lista de espera, pagos y notificaciones.
+- Cálculo de slots, drag-and-drop de agenda y FullCalendar.
+- Refresh token, cookies HttpOnly, revocación, MFA, invitaciones y selector de organización.
+- Administración de usuarios, NgRx, integración directa con Quarkus, Docker, Azure y CI/CD.
