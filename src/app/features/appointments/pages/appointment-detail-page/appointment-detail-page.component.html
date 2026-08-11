@@ -1,0 +1,162 @@
+<section class="feature-page" aria-labelledby="appointment-title">
+  <app-page-header
+    title="Appointment details"
+    headingId="appointment-title"
+    description="Booking information and lifecycle history."
+    [breadcrumbs]="['Appointments', 'Details']"
+  >
+    @if (appointment(); as current) {
+      <app-appointment-actions
+        pageActions
+        [appointment]="current"
+        [permissions]="auth.permissions()"
+        [platformAdmin]="auth.isPlatformAdmin()"
+        [saving]="cancelling() ? 'cancel' : saving()"
+        (actionRequested)="requestLifecycle($event)"
+        (cancelRequested)="cancelOpen.set(true)"
+      />
+    }
+  </app-page-header>
+  <div class="sr-announcements" aria-live="polite">
+    @if (successMessage()) { {{ successMessage() }} }
+  </div>
+  @if (successMessage(); as message) {
+    <p-message severity="success">{{ message }}</p-message>
+  }
+  @if (actionError(); as actionFailure) {
+    <p-message severity="error">{{ actionFailure.message }}</p-message>
+  }
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading appointment</strong>
+    </div>
+  } @else if (error(); as e) {
+    <p-message severity="error">{{ e.message }}</p-message>
+  } @else if (appointment(); as a) {
+    <article class="detail-surface">
+      <header class="detail-identity">
+        <div>
+          <p class="eyebrow">Appointment #{{ a.id }}</p>
+          <h2>{{ a.startsAt | date: 'fullDate' }}</h2>
+          <p>{{ a.startsAt | date: 'shortTime' }} – {{ a.endsAt | date: 'shortTime' }}</p>
+        </div>
+        <app-status-badge [status]="badge(a.status)" />
+      </header>
+      <div class="detail-grid">
+        <section>
+          <h3>Customer</h3>
+          <p>
+            <a [routerLink]="['/customers', a.customerId]">{{ customerName() }}</a>
+          </p>
+        </section>
+        <section>
+          <h3>Service</h3>
+          <p>{{ service()?.name || 'Service #' + a.serviceId }}</p>
+        </section>
+        <section>
+          <h3>Location</h3>
+          <p>{{ branch()?.name || 'Branch #' + a.branchId }}</p>
+        </section>
+        <section>
+          <h3>Specialist</h3>
+          <p>{{ specialist()?.professionalName || 'Specialist #' + a.specialistId }}</p>
+        </section>
+        <section>
+          <h3>Origin</h3>
+          <p>{{ a.origin.replaceAll('_', ' ') }}</p>
+        </section>
+        @if (a.customerNotes) {
+          <section>
+            <h3>Customer notes</h3>
+            <p>{{ a.customerNotes }}</p>
+          </section>
+        }
+        @if (a.internalNotes) {
+          <section>
+            <h3>Internal notes</h3>
+            <p>{{ a.internalNotes }}</p>
+          </section>
+        }
+        @if (a.cancellationReason) {
+          <section>
+            <h3>Cancellation</h3>
+            <p>{{ a.cancellationReason }}</p>
+          </section>
+        }
+      </div>
+    </article>
+    <section class="form-section" aria-labelledby="history-title">
+      <div class="form-section__heading">
+        <div>
+          <p class="eyebrow">Audit trail</p>
+          <h2 id="history-title">History</h2>
+        </div>
+      </div>
+      @if (history().length === 0) {
+        <p class="muted-copy">No status history is available.</p>
+      } @else {
+        <ol class="timeline">
+          @for (entry of history(); track entry.id) {
+            <li>
+              <app-status-badge [status]="badge(entry.newStatus)" />
+              <div>
+                <strong>{{ entry.changedAt | date: 'medium' }}</strong>
+                <p>
+                  {{ entry.previousStatus ? entry.previousStatus.replaceAll('_', ' ') + ' → ' : ''
+                  }}{{ entry.newStatus.replaceAll('_', ' ') }}
+                </p>
+                @if (entry.changeReason) {
+                  <small><strong>Reason:</strong> {{ entry.changeReason }}</small>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  }
+  <p-dialog
+    header="Cancel appointment"
+    [modal]="true"
+    [visible]="cancelOpen()"
+    (visibleChange)="cancelOpen.set($event)"
+    [style]="{ width: 'min(32rem, calc(100vw - 2rem))' }"
+    ><form [formGroup]="cancelForm" (ngSubmit)="confirmCancel()">
+      <p>This action updates the appointment status and preserves its history.</p>
+      <div class="form-field">
+        <label for="cancelReason">Reason (optional)</label
+        ><textarea id="cancelReason" formControlName="reason" rows="4" maxlength="10000"></textarea>
+      </div>
+      <div class="form-actions">
+        <button pButton type="button" class="secondary-action" (click)="cancelOpen.set(false)">
+          Keep appointment</button
+        ><button pButton type="submit" class="danger-action" [disabled]="cancelling()">
+          {{ cancelling() ? 'Cancelling…' : 'Confirm cancellation' }}
+        </button>
+      </div>
+    </form></p-dialog
+  >
+  <p-dialog
+    [header]="pendingConfirmation() === 'complete' ? 'Complete appointment' : 'Mark as no-show'"
+    [modal]="true"
+    [visible]="pendingConfirmation() !== null"
+    (visibleChange)="$event || pendingConfirmation.set(null)"
+    [style]="{ width: 'min(30rem, calc(100vw - 2rem))' }"
+  >
+    <p>
+      {{
+        pendingConfirmation() === 'complete'
+          ? 'Confirm that service for this appointment has been completed.'
+          : 'Confirm that the customer did not attend this appointment.'
+      }}
+    </p>
+    <div class="form-actions">
+      <button pButton type="button" class="secondary-action" (click)="pendingConfirmation.set(null)">
+        Go back
+      </button>
+      <button pButton type="button" class="danger-action" [disabled]="saving() !== null" (click)="confirmLifecycle()">
+        Confirm action
+      </button>
+    </div>
+  </p-dialog>
+</section>

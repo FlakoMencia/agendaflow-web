@@ -1,0 +1,191 @@
+<section class="feature-page" aria-labelledby="customer-form-title">
+  <app-page-header
+    [title]="editing ? 'Edit customer' : 'New customer'"
+    headingId="customer-form-title"
+    description="Maintain a customer profile within the active organization."
+    [breadcrumbs]="['Customers', editing ? 'Edit' : 'New']"
+  />
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading customer</strong>
+    </div>
+  } @else if (!loaded() && error(); as loadError) {
+    <p-message severity="error">{{ loadError.message }}</p-message>
+  } @else {
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (error(); as saveError) {
+        <p-message severity="error">{{ saveError.message }}</p-message>
+      }
+      <section class="form-section" aria-labelledby="customer-identity">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Profile</p>
+            <h2 id="customer-identity">Identity and contact</h2>
+          </div>
+          <p>Email and phone are optional.</p>
+        </div>
+        <div class="form-grid">
+          @for (
+            field of [
+              { id: 'firstName', label: 'First name', required: true, max: 80 },
+              { id: 'middleName', label: 'Middle name', required: false, max: 80 },
+              { id: 'lastName', label: 'Last name', required: true, max: 80 },
+              { id: 'secondLastName', label: 'Second last name', required: false, max: 80 },
+              { id: 'customerNumber', label: 'Customer number', required: false, max: 40 },
+            ];
+            track field.id
+          ) {
+            <div class="form-field">
+              <label [for]="field.id"
+                >{{ field.label }}
+                @if (field.required) {
+                  <span aria-hidden="true">*</span>
+                }</label
+              ><input
+                pInputText
+                [id]="field.id"
+                [formControlName]="field.id"
+                [maxlength]="field.max"
+                [attr.aria-describedby]="field.id + '-error'"
+              />
+              @if (fieldError(field.id, field.label); as message) {
+                <small [id]="field.id + '-error'" class="field-error">{{ message }}</small>
+              }
+            </div>
+          }
+          <div class="form-field">
+            <label for="email">Email</label
+            ><input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+            /><small class="field-error">{{ fieldError('email', 'Email') }}</small>
+          </div>
+          <div class="form-field">
+            <label for="phone">Phone</label
+            ><input pInputText id="phone" type="tel" formControlName="phone" autocomplete="tel" />
+          </div>
+          <div class="form-field">
+            <label for="alternatePhone">Alternate phone</label
+            ><input pInputText id="alternatePhone" type="tel" formControlName="alternatePhone" />
+          </div>
+          <div class="form-field">
+            <label for="dateOfBirth">Date of birth</label
+            ><input pInputText id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+          </div>
+          <div class="form-field">
+            <label for="preferredLanguage">Preferred language</label
+            ><input
+              pInputText
+              id="preferredLanguage"
+              formControlName="preferredLanguage"
+              maxlength="10"
+            />
+          </div>
+          <div class="form-field">
+            <label for="preferredContactMethod">Preferred contact</label
+            ><select id="preferredContactMethod" formControlName="preferredContactMethod">
+              <option [ngValue]="null">Not specified</option>
+              <option value="EMAIL">Email</option>
+              <option value="SMS">SMS</option>
+              <option value="PHONE">Phone</option>
+              <option value="NONE">None</option>
+            </select>
+          </div>
+        </div>
+      </section>
+      <section class="form-section" aria-labelledby="customer-address">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Contact</p>
+            <h2 id="customer-address">Address and emergency contact</h2>
+          </div>
+        </div>
+        <div class="form-grid">
+          @for (
+            field of [
+              { id: 'addressLine1', label: 'Address line 1' },
+              { id: 'addressLine2', label: 'Address line 2' },
+              { id: 'city', label: 'City' },
+              { id: 'stateCode', label: 'State code' },
+              { id: 'postalCode', label: 'Postal code' },
+              { id: 'countryCode', label: 'Country code' },
+              { id: 'emergencyContactName', label: 'Emergency contact' },
+              { id: 'emergencyContactPhone', label: 'Emergency phone' },
+              { id: 'emergencyContactRelationship', label: 'Emergency relationship' },
+            ];
+            track field.id
+          ) {
+            <div class="form-field">
+              <label [for]="field.id">{{ field.label }}</label
+              ><input pInputText [id]="field.id" [formControlName]="field.id" />
+            </div>
+          }
+        </div>
+      </section>
+      <section class="form-section" aria-labelledby="customer-preferences">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Preferences</p>
+            <h2 id="customer-preferences">Consent and internal notes</h2>
+          </div>
+        </div>
+        <div class="form-grid">
+          <label class="toggle-field"
+            ><input type="checkbox" formControlName="active" /><span
+              ><strong>Active customer</strong></span
+            ></label
+          ><label class="toggle-field"
+            ><input type="checkbox" formControlName="emailConsent" /><span
+              ><strong>Email consent</strong></span
+            ></label
+          ><label class="toggle-field"
+            ><input type="checkbox" formControlName="smsConsent" /><span
+              ><strong>SMS consent</strong></span
+            ></label
+          ><label class="toggle-field"
+            ><input type="checkbox" formControlName="marketingConsent" /><span
+              ><strong>Marketing consent</strong></span
+            ></label
+          >
+          <div class="form-field">
+            <label for="termsAcceptedAt">Terms accepted at</label
+            ><input
+              pInputText
+              id="termsAcceptedAt"
+              type="datetime-local"
+              formControlName="termsAcceptedAt"
+            />
+          </div>
+          <div class="form-field">
+            <label for="privacyPolicyAcceptedAt">Privacy accepted at</label
+            ><input
+              pInputText
+              id="privacyPolicyAcceptedAt"
+              type="datetime-local"
+              formControlName="privacyPolicyAcceptedAt"
+            />
+          </div>
+          <div class="form-field form-field--wide">
+            <label for="internalNotes">Internal notes</label
+            ><textarea
+              id="internalNotes"
+              formControlName="internalNotes"
+              rows="4"
+              maxlength="10000"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+      <div class="form-actions">
+        <a pButton routerLink="/customers" class="secondary-action">Cancel</a
+        ><button pButton type="submit" class="primary-action" [disabled]="saving()">
+          <i [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i
+          ><span>{{ saving() ? 'Saving…' : 'Save customer' }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</section>

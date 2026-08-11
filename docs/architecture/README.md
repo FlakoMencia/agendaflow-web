@@ -1,29 +1,22 @@
 # Arquitectura
 
-AgendaFlow Web usa componentes standalone, rutas lazy y un application shell común. La sesión,
-el interceptor Bearer y los guards permanecen en `core/security`; no se usa un store global.
+AgendaFlow Web usa Angular standalone, rutas lazy y un application shell común. Sesión, interceptor
+Bearer y guards viven en `core`; no se usa un store global.
 
-## Capas principales
+Los features de clientes y appointments tienen rutas lazy propias. Cada página operativa mantiene
+estado con Signals locales y usa Reactive Forms tipados. Los servicios HTTP construyen URLs desde
+`API_CONFIG` y reciben el `organizationId` de la sesión activa.
 
-```text
-AppComponent
-└── Router
-    ├── /login (público)
-    ├── AppShellComponent (autenticado)
-    │   ├── organizaciones y sucursales
-    │   ├── catálogo de servicios
-    │   └── especialistas, disponibilidad y bloqueos
-    └── 404 técnico (público)
-```
+El lifecycle de citas separa responsabilidades:
 
-Cada feature de Fase 4 contiene modelos de contrato, servicios HTTP y páginas standalone. Las
-páginas usan Signals locales para `loading`, datos, `saving` y errores; los formularios son Reactive
-Forms tipados. Los clientes construyen las URLs desde `API_CONFIG`, reciben siempre el
-`organizationId` de la sesión activa y dejan la autenticación al interceptor.
+- `AppointmentsApiService` conoce los endpoints organization-scoped.
+- `AppointmentActionsComponent` deriva acciones visibles de status y permisos sin hacer HTTP.
+- La página detalle coordina confirmaciones, llamadas, mensajes y refresh del historial.
+- Spring API sigue siendo autoridad para tenant, permisos y transiciones.
 
-Los IDs PostgreSQL `BIGINT` se representan como `number` dentro de `Number.MAX_SAFE_INTEGER`. Los
-importes se muestran como números decimales sin realizar cálculos financieros en el navegador.
+Los estilos exclusivos de agenda, slots, history y acciones viven en componentes lazy. Esto redujo
+el bundle inicial de 542.31 kB a 541.22 kB sin cambiar budgets.
 
 Más detalle en [autenticación](authentication.md), [routing y guards](routing-and-guards.md),
-[servicios y especialistas](../ui/services-and-specialists.md) y
-[disponibilidad](../ui/availability.md).
+[servicios y especialistas](../ui/services-and-specialists.md), [disponibilidad](../ui/availability.md),
+[clientes](../ui/customers.md) y [citas](../ui/appointments.md).

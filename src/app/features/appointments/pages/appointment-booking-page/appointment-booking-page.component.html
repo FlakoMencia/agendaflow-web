@@ -1,0 +1,167 @@
+<section class="feature-page" aria-labelledby="booking-title">
+  <app-page-header
+    title="Book appointment"
+    headingId="booking-title"
+    description="Choose a customer and a time returned by the AgendaFlow availability engine."
+    [breadcrumbs]="['Appointments', 'Book']"
+  />
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i
+      ><strong>Loading booking options</strong>
+    </div>
+  } @else {
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (error(); as e) {
+        <p-message severity="error">{{ e.message }}</p-message>
+      }
+      <section class="form-section" aria-labelledby="booking-context">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Step 1</p>
+            <h2 id="booking-context">Appointment context</h2>
+          </div>
+          <p>Services and specialists are limited to active assignments.</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="customerId">Customer <span aria-hidden="true">*</span></label
+            ><select id="customerId" formControlName="customerId">
+              <option [ngValue]="null">Select customer</option>
+              @for (c of customers(); track c.id) {
+                <option [ngValue]="c.id">{{ customerName(c) }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="branchId">Branch <span aria-hidden="true">*</span></label
+            ><select id="branchId" formControlName="branchId" (change)="branchChanged()">
+              <option [ngValue]="null">Select branch</option>
+              @for (b of branches(); track b.id) {
+                <option [ngValue]="b.id">{{ b.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="serviceId">Service <span aria-hidden="true">*</span></label
+            ><select id="serviceId" formControlName="serviceId" (change)="contextChanged()">
+              <option [ngValue]="null">Select service</option>
+              @for (s of services(); track s.id) {
+                <option [ngValue]="s.id">{{ s.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="specialistId">Specialist</label
+            ><select id="specialistId" formControlName="specialistId" (change)="requestSlots()">
+              <option [ngValue]="null">Any compatible specialist</option>
+              @for (s of specialists(); track s.id) {
+                <option [ngValue]="s.id">{{ s.professionalName }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="date">Date <span aria-hidden="true">*</span></label
+            ><input
+              id="date"
+              type="date"
+              formControlName="date"
+              [min]="form.controls.date.value"
+              (change)="requestSlots()"
+            />
+          </div>
+        </div>
+      </section>
+      <section class="form-section" aria-labelledby="booking-slots">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Step 2</p>
+            <h2 id="booking-slots">Available times</h2>
+          </div>
+          @if (timezone()) {
+            <p>Timezone: {{ timezone() }}</p>
+          }
+        </div>
+        @if (slotsLoading()) {
+          <p role="status">
+            <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Checking live availability…
+          </p>
+        } @else if (slotError(); as e) {
+          <p-message severity="error">{{ e.message }}</p-message>
+        } @else if (form.controls.serviceId.value && slots().length === 0) {
+          <p class="muted-copy">No available times match this selection.</p>
+        } @else {
+          <div class="slot-grid" role="list" aria-label="Available appointment times">
+            @for (slot of slots(); track slot.start + '-' + slot.specialistId) {
+              <button
+                type="button"
+                class="slot-option"
+                [class.slot-option--selected]="
+                  selectedSlot()?.start === slot.start &&
+                  selectedSlot()?.specialistId === slot.specialistId
+                "
+                (click)="selectSlot(slot)"
+                [attr.aria-pressed]="selectedSlot() === slot"
+              >
+                <strong>{{ formatTime(slot.start) }}</strong
+                ><small>{{ specialistName(slot.specialistId) }}</small>
+              </button>
+            }
+          </div>
+        }
+      </section>
+      <section class="form-section" aria-labelledby="booking-notes">
+        <div class="form-section__heading">
+          <div>
+            <p class="eyebrow">Step 3</p>
+            <h2 id="booking-notes">Notes and confirmation</h2>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field form-field--wide">
+            <label for="customerNotes">Customer notes</label
+            ><textarea
+              id="customerNotes"
+              formControlName="customerNotes"
+              rows="3"
+              maxlength="10000"
+            ></textarea>
+          </div>
+          <div class="form-field form-field--wide">
+            <label for="internalNotes">Internal notes</label
+            ><textarea
+              id="internalNotes"
+              formControlName="internalNotes"
+              rows="3"
+              maxlength="10000"
+            ></textarea>
+          </div>
+        </div>
+        @if (selectedSlot(); as slot) {
+          <aside class="booking-summary" aria-live="polite">
+            <strong>Selected time</strong
+            ><span
+              >{{ slot.start | date: 'fullDate' }} at {{ formatTime(slot.start) }} ·
+              {{ specialistName(slot.specialistId) }}</span
+            >
+          </aside>
+        }
+      </section>
+      <div class="form-actions">
+        <a pButton routerLink="/appointments" class="secondary-action">Cancel</a
+        ><button
+          pButton
+          type="submit"
+          class="primary-action"
+          [disabled]="saving() || !selectedSlot()"
+        >
+          <i
+            [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-calendar-plus'"
+            aria-hidden="true"
+          ></i
+          ><span>{{ saving() ? 'Booking…' : 'Confirm booking' }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</section>

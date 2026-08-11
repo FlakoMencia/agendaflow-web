@@ -491,13 +491,15 @@ app-page-container {
 }
 
 .status-badge--active,
-.status-badge--confirmed {
+.status-badge--confirmed,
+.status-badge--completed {
   border-color: rgb(21 128 61 / 0.2);
   background: #f0fdf4;
   color: var(--af-success);
 }
 
-.status-badge--inactive {
+.status-badge--inactive,
+.status-badge--rescheduled {
   border-color: var(--af-border);
   background: var(--af-surface-subtle);
   color: var(--af-text-muted);
@@ -515,7 +517,15 @@ app-page-container {
   color: var(--af-warning);
 }
 
-.status-badge--cancelled {
+.status-badge--checked_in,
+.status-badge--in_progress {
+  border-color: rgb(2 132 199 / 0.2);
+  background: #f0f9ff;
+  color: var(--af-accent);
+}
+
+.status-badge--cancelled,
+.status-badge--no_show {
   border-color: rgb(185 28 28 / 0.2);
   background: #fef2f2;
   color: var(--af-danger);

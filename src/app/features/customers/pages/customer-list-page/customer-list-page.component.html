@@ -1,0 +1,92 @@
+<section class="feature-page" aria-labelledby="customers-title">
+  <app-page-header
+    title="Customers"
+    headingId="customers-title"
+    description="Customer directory for the active organization."
+    [breadcrumbs]="['Customers']"
+  >
+    @if (canCreate()) {
+      <a pageActions pButton routerLink="/customers/new" class="primary-action"
+        ><i class="pi pi-plus" aria-hidden="true"></i><span>New customer</span></a
+      >
+    }
+  </app-page-header>
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading customers</strong>
+    </div>
+  } @else if (error(); as loadError) {
+    <div class="state-stack" role="alert">
+      <p-message severity="error">{{ loadError.message }}</p-message
+      ><button pButton type="button" class="secondary-action" (click)="retry()">Retry</button>
+    </div>
+  } @else if (customers().length === 0) {
+    <app-empty-state
+      icon="pi pi-users"
+      title="No customers yet"
+      description="Create the first customer when their contact information is available."
+    >
+      @if (canCreate()) {
+        <a emptyActions pButton routerLink="/customers/new" class="primary-action">New customer</a>
+      }
+    </app-empty-state>
+  } @else {
+    <div class="data-surface data-surface--desktop">
+      <p-table [value]="customers()" [tableStyle]="{ 'min-width': '50rem' }"
+        ><ng-template pTemplate="header"
+          ><tr>
+            <th scope="col">Customer</th>
+            <th scope="col">Number</th>
+            <th scope="col">Contact</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr></ng-template
+        ><ng-template pTemplate="body" let-customer
+          ><tr>
+            <td>
+              <strong>{{ name(customer) }}</strong>
+            </td>
+            <td>{{ customer.customerNumber || '—' }}</td>
+            <td>{{ customer.email || customer.phone || 'Not provided' }}</td>
+            <td><app-status-badge [status]="customer.active ? 'active' : 'inactive'" /></td>
+            <td>
+              <div class="row-actions">
+                <a [routerLink]="['/customers', customer.id]">View</a>
+                @if (canUpdate()) {
+                  <a [routerLink]="['/customers', customer.id, 'edit']">Edit</a>
+                }
+              </div>
+            </td>
+          </tr></ng-template
+        ></p-table
+      >
+    </div>
+    <div class="record-cards" aria-label="Customers">
+      @for (customer of customers(); track customer.id) {
+        <article class="record-card">
+          <div class="record-card__heading">
+            <div>
+              <h2>{{ name(customer) }}</h2>
+              <p>{{ customer.customerNumber || 'No customer number' }}</p>
+            </div>
+            <app-status-badge [status]="customer.active ? 'active' : 'inactive'" />
+          </div>
+          <p>{{ customer.email || customer.phone || 'Contact not provided' }}</p>
+          <div class="row-actions">
+            <a [routerLink]="['/customers', customer.id]">View profile</a>
+            @if (canUpdate()) {
+              <a [routerLink]="['/customers', customer.id, 'edit']">Edit</a>
+            }
+          </div>
+        </article>
+      }
+    </div>
+    <p-paginator
+      [first]="page() * size()"
+      [rows]="size()"
+      [totalRecords]="total()"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      (onPageChange)="onPageChange($event)"
+    />
+  }
+</section>

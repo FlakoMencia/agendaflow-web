@@ -6,14 +6,12 @@ principal de AgendaFlow.
 
 ## Estado
 
-**Fase 4 — servicios, especialistas y disponibilidad.** Están implementados el catálogo de
-servicios, categorías, asignaciones a sucursales, perfiles de especialistas, asignaciones de
-sucursales y servicios, disponibilidad recurrente y schedule blocks. Se conservan el shell,
-organizaciones, sucursales, autenticación JWT, sesión, guards, permisos y manejo de 401/403 de las
-fases anteriores.
+**Fase 6 — lifecycle operativo de citas.** Además de reserva, detalle, reprogramación y cancelación,
+la web permite confirmar, hacer check-in, iniciar, completar y marcar no-show siguiendo status y
+permisos reales del backend. El historial se refresca después de cada transición.
 
-Todavía no existen citas, calendario de reservas, clientes, selector de organización, refresh token
-ni administración de usuarios.
+Todavía no existen calendario visual, drag-and-drop, pagos, lista de espera, selector de
+organización, refresh token ni administración de usuarios.
 
 ## Stack y requisitos
 
@@ -33,7 +31,7 @@ npm --version
 npm install
 ```
 
-`package-lock.json` permanece versionado para instalaciones reproducibles. La Fase 4 no agrega
+`package-lock.json` permanece versionado para instalaciones reproducibles. La Fase 5 no agrega
 dependencias.
 
 ## Desarrollo, pruebas y build
@@ -58,7 +56,7 @@ flujo completo:
 3. inicia sesión con el `organizationId` de esa membresía;
 4. ejecuta `npm start`.
 
-El `organizationId` usado por servicios, especialistas y horarios proviene siempre de la sesión
+El `organizationId` usado por clientes, citas, servicios, especialistas y horarios proviene siempre de la sesión
 activa. No existe un campo editable para cambiar el tenant y no hay datos mock en runtime.
 
 El navegador conserva únicamente el access token en `sessionStorage`. El interceptor agrega
@@ -66,7 +64,22 @@ El navegador conserva únicamente el access token en `sessionStorage`. El interc
 `/access-denied`. Guards y ocultamiento de acciones mejoran la UX, pero el backend valida siempre
 JWT, tenant y permisos.
 
-## Rutas de Fase 4
+## Rutas y acciones de Fase 6
+
+Clientes:
+
+- `/customers` y `/customers/:customerId` — `CUSTOMERS_VIEW`.
+- `/customers/new` — `CUSTOMERS_CREATE`.
+- `/customers/:customerId/edit` — `CUSTOMERS_UPDATE`.
+
+Citas:
+
+- `/appointments` y `/appointments/:appointmentId` — `APPOINTMENTS_VIEW`.
+- `/appointments/new` — `APPOINTMENTS_CREATE`.
+- `/appointments/:appointmentId/reschedule` — `APPOINTMENTS_UPDATE`.
+- La cancelación en detalle requiere `APPOINTMENTS_CANCEL`.
+- Confirm, check-in y start requieren `APPOINTMENTS_UPDATE`.
+- Complete y no-show requieren `APPOINTMENTS_COMPLETE`.
 
 Servicios:
 
@@ -93,7 +106,9 @@ src/app/
 │   ├── organizations/       # organizaciones
 │   ├── branches/            # sucursales
 │   ├── services/            # categorías, servicios y asignaciones a branches
-│   └── specialists/         # perfiles, asignaciones, availability y blocks
+│   ├── specialists/         # perfiles, asignaciones, availability y blocks
+│   ├── customers/           # perfiles de clientes
+│   └── appointments/        # agenda, slots, reserva e historial
 ├── shared/                  # componentes visuales reutilizables
 └── testing/                 # fixtures y contratos solo para pruebas
 ```
@@ -105,8 +120,8 @@ financiera compleja en el frontend.
 ## UI, disponibilidad y errores
 
 AgendaFlow extiende Aura con teal/slate, superficies claras, foco visible y layouts responsive. Las
-tablas de escritorio se convierten en cards en móvil. Availability usa siete cards semanales; los
-schedule blocks usan filas compactas. No se instala FullCalendar ni se dibujan slots o citas.
+tablas de escritorio se convierten en cards en móvil. La agenda conserva una tabla responsive y
+los slots reales se presentan como botones accesibles; no se instala FullCalendar.
 
 Los formularios realizan validaciones básicas y el backend sigue siendo fuente de verdad. Un
 solapamiento conserva abierto el editor y muestra un mensaje específico. Los servicios compartidos
@@ -118,6 +133,8 @@ Documentación adicional:
 - [Desarrollo](docs/development/README.md)
 - [Servicios y especialistas](docs/ui/services-and-specialists.md)
 - [Disponibilidad y bloqueos](docs/ui/availability.md)
+- [Clientes](docs/ui/customers.md)
+- [Citas](docs/ui/appointments.md)
 - [Autenticación](docs/architecture/authentication.md)
 
 ## PrimeNG Community
@@ -135,7 +152,13 @@ archivos de ambiente o código fuente versionado.
 
 ## Aún no implementado
 
-- Appointments, calendario de citas, clientes, lista de espera, pagos y notificaciones.
-- Cálculo de slots, drag-and-drop de agenda y FullCalendar.
+- Calendario visual, drag-and-drop, lista de espera, pagos y notificaciones visibles en la web.
 - Refresh token, cookies HttpOnly, revocación, MFA, invitaciones y selector de organización.
 - Administración de usuarios, NgRx, integración directa con Quarkus, Docker, Azure y CI/CD.
+
+## Bundle y notificaciones eventuales
+
+El bundle inicial pasó de **542.31 kB** a **541.22 kB**, una reducción de **1.09 kB**, al mover
+estilos exclusivos de appointments a chunks lazy. El budget de 500 kB no se aumentó y conserva su
+warning. La web solo espera el resultado del API Spring: no llama Quarkus, no espera el envío
+eventual y no afirma que un correo fue enviado.

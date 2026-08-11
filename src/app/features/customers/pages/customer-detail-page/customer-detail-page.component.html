@@ -1,0 +1,87 @@
+<section class="feature-page" aria-labelledby="customer-title">
+  <app-page-header
+    [title]="customer() ? name(customer()!) : 'Customer'"
+    headingId="customer-title"
+    description="Customer profile in the active organization."
+    [breadcrumbs]="['Customers', 'Details']"
+  >
+    @if (customer() && auth.hasPermission('CUSTOMERS_UPDATE')) {
+      <a pageActions pButton [routerLink]="['/customers', id, 'edit']" class="secondary-action"
+        >Edit</a
+      >
+    }
+  </app-page-header>
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading customer</strong>
+    </div>
+  } @else if (error(); as e) {
+    <p-message severity="error">{{ e.message }}</p-message>
+  } @else if (customer(); as c) {
+    <article class="detail-surface">
+      <header class="detail-identity">
+        <div>
+          <p class="eyebrow">Customer</p>
+          <h2>{{ name(c) }}</h2>
+          <p>{{ c.customerNumber || 'No customer number' }}</p>
+        </div>
+        <app-status-badge [status]="c.active ? 'active' : 'inactive'" />
+      </header>
+      <div class="detail-grid">
+        <section>
+          <h3>Contact</h3>
+          <dl class="detail-list">
+            <div>
+              <dt>Email</dt>
+              <dd>{{ c.email || 'Not provided' }}</dd>
+            </div>
+            <div>
+              <dt>Phone</dt>
+              <dd>{{ c.phone || 'Not provided' }}</dd>
+            </div>
+            <div>
+              <dt>Preferred channel</dt>
+              <dd>{{ c.preferredContactMethod || 'Not specified' }}</dd>
+            </div>
+          </dl>
+        </section>
+        <section>
+          <h3>Address</h3>
+          <p>{{ c.addressLine1 || 'Not provided' }} {{ c.city }}</p>
+        </section>
+        <section>
+          <h3>Preferences</h3>
+          <p>
+            Email: {{ c.emailConsent ? 'Allowed' : 'Not allowed' }} · SMS:
+            {{ c.smsConsent ? 'Allowed' : 'Not allowed' }} · Marketing:
+            {{ c.marketingConsent ? 'Allowed' : 'Not allowed' }}
+          </p>
+        </section>
+        @if (c.internalNotes) {
+          <section>
+            <h3>Internal notes</h3>
+            <p>{{ c.internalNotes }}</p>
+          </section>
+        }
+      </div>
+      <div class="form-actions">
+        <a
+          pButton
+          [routerLink]="['/appointments']"
+          [queryParams]="{ customerId: c.id }"
+          class="secondary-action"
+          >View appointments</a
+        >
+        @if (auth.hasPermission('APPOINTMENTS_CREATE')) {
+          <a
+            pButton
+            routerLink="/appointments/new"
+            [queryParams]="{ customerId: c.id }"
+            class="primary-action"
+            >Book appointment</a
+          >
+        }
+      </div>
+    </article>
+  }
+</section>

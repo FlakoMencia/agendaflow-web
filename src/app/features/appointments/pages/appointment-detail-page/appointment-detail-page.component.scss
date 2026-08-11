@@ -1,0 +1,15 @@
+.timeline {
+  display: grid;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--af-border);
+}

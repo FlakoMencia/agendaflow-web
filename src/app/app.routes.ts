@@ -113,24 +113,20 @@ export const routes: Routes = [
             ({ BranchFormPageComponent }) => BranchFormPageComponent,
           ),
       },
-      moduleRoute(
-        'appointments',
-        'Appointments',
-        'APPOINTMENTS_VIEW',
-        'Espacio reservado para la gestión futura de citas.',
-        'Gestión de citas aún no implementada',
-        'El calendario, las reservas y los estados de citas llegarán en fases posteriores.',
-        'pi pi-calendar',
-      ),
-      moduleRoute(
-        'customers',
-        'Customers',
-        'CUSTOMERS_VIEW',
-        'Espacio reservado para la administración futura de clientes.',
-        'Clientes aún no implementados',
-        'Los perfiles, historiales y acciones sobre clientes se agregarán más adelante.',
-        'pi pi-users',
-      ),
+      {
+        path: 'appointments',
+        loadChildren: () =>
+          import('./features/appointments/appointments.routes').then(
+            ({ APPOINTMENT_ROUTES }) => APPOINTMENT_ROUTES,
+          ),
+      },
+      {
+        path: 'customers',
+        loadChildren: () =>
+          import('./features/customers/customers.routes').then(
+            ({ CUSTOMER_ROUTES }) => CUSTOMER_ROUTES,
+          ),
+      },
       {
         path: 'services',
         title: 'Services | AgendaFlow',
@@ -217,9 +213,9 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         data: { permissions: ['SCHEDULE_VIEW'] },
         loadComponent: () =>
-          import(
-            './features/specialists/pages/specialist-availability-page/specialist-availability-page.component'
-          ).then(({ SpecialistAvailabilityPageComponent }) => SpecialistAvailabilityPageComponent),
+          import('./features/specialists/pages/specialist-availability-page/specialist-availability-page.component').then(
+            ({ SpecialistAvailabilityPageComponent }) => SpecialistAvailabilityPageComponent,
+          ),
       },
       {
         path: 'specialists/:specialistId',
@@ -227,9 +223,9 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         data: { permissions: ['SPECIALISTS_VIEW'] },
         loadComponent: () =>
-          import(
-            './features/specialists/pages/specialist-detail-page/specialist-detail-page.component'
-          ).then(({ SpecialistDetailPageComponent }) => SpecialistDetailPageComponent),
+          import('./features/specialists/pages/specialist-detail-page/specialist-detail-page.component').then(
+            ({ SpecialistDetailPageComponent }) => SpecialistDetailPageComponent,
+          ),
       },
       moduleRoute(
         'branches',

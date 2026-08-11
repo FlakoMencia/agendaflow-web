@@ -1,0 +1,27 @@
+.filter-surface {
+  padding: 1rem;
+  border: 1px solid var(--af-border);
+  border-radius: var(--af-radius-lg);
+  background: var(--af-surface);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.filter-presets > span {
+  color: var(--af-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}

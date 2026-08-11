@@ -10,13 +10,15 @@ npm run build
 npm audit --omit=dev
 ```
 
-La web se ejecuta en `http://localhost:4200` y espera la API en
-`http://localhost:8080/api/v1`. Para probar los módulos de Fase 4, la sesión debe exponer una
-organización activa y los permisos de consulta o gestión correspondientes. No hay selector manual
-de organización ni workaround CORS en Angular.
+La web corre en `http://localhost:4200` y consume exclusivamente
+`http://localhost:8080/api/v1`. Para probar Fase 6 localmente, inicia sesión con una organización
+activa y combina `APPOINTMENTS_VIEW` con `APPOINTMENTS_UPDATE`, `APPOINTMENTS_CANCEL` y
+`APPOINTMENTS_COMPLETE` según la acción.
 
-Los modelos TypeScript deben mantenerse alineados con los records reales del backend. Las pruebas
-HTTP usan `HttpTestingController`; los dobles y fixtures existen únicamente en archivos de prueba.
-No se guardan credenciales, access tokens ni secretos en el repositorio.
+Flujo manual sugerido: crear una cita, abrir su detalle, confirmar, hacer check-in, iniciar y
+completar; crear otra cita pasada para comprobar no-show; revisar el historial después de cada
+transición. El backend permanece como autoridad de status y hora.
 
-Consulta [login local](local-login.md) para preparar una sesión junto con `agendaflow-api`.
+Las pruebas HTTP usan `HttpTestingController`; fixtures y stubs solo existen en tests. No se guardan
+credenciales o tokens. Consulta [login local](local-login.md) para preparar una sesión junto con
+`agendaflow-api`.

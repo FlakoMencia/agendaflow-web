@@ -1,0 +1,14 @@
+.appointment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 35rem) {
+  .appointment-actions,
+  .appointment-actions > a,
+  .appointment-actions > button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,39 @@
+@if (hasActions()) {
+  <div class="appointment-actions" aria-label="Appointment actions">
+    @if (canConfirm()) {
+      <button pButton type="button" [disabled]="saving() !== null" (click)="request('confirm')">
+        {{ saving() === 'confirm' ? 'Confirming…' : 'Confirm' }}
+      </button>
+    }
+    @if (canCheckIn()) {
+      <button pButton type="button" [disabled]="saving() !== null" (click)="request('checkIn')">
+        {{ saving() === 'checkIn' ? 'Checking in…' : 'Check in' }}
+      </button>
+    }
+    @if (canStart()) {
+      <button pButton type="button" [disabled]="saving() !== null" (click)="request('start')">
+        {{ saving() === 'start' ? 'Starting…' : 'Start appointment' }}
+      </button>
+    }
+    @if (canComplete()) {
+      <button pButton type="button" [disabled]="saving() !== null" (click)="request('complete')">
+        Complete
+      </button>
+    }
+    @if (canReschedule()) {
+      <a pButton [routerLink]="['/appointments', appointment().id, 'reschedule']" class="secondary-action">
+        Reschedule
+      </a>
+    }
+    @if (canNoShow()) {
+      <button pButton type="button" class="secondary-action" [disabled]="saving() !== null" (click)="request('noShow')">
+        Mark as no-show
+      </button>
+    }
+    @if (canCancel()) {
+      <button pButton type="button" class="danger-action" [disabled]="saving() !== null" (click)="cancel()">
+        Cancel appointment
+      </button>
+    }
+  </div>
+}

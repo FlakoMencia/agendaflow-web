@@ -10,6 +10,7 @@ import { PageResponse } from './core/http/page-response.model';
 import { AuthSessionService } from './core/security/auth-session.service';
 import { CatalogService } from './features/services/models/service-catalog.model';
 import { ServicesApiService } from './features/services/services/services-api.service';
+import { CustomersApiService } from './features/customers/services/customers-api.service';
 import { AuthSessionStub } from './testing/auth-fixtures';
 
 describe('AppComponent', () => {
@@ -20,6 +21,21 @@ describe('AppComponent', () => {
         provideRouter(routes),
         providePrimeNG({ theme: { preset: AgendaFlowPreset } }),
         { provide: AuthSessionService, useValue: new AuthSessionStub() },
+        {
+          provide: CustomersApiService,
+          useValue: {
+            list: () =>
+              of({
+                content: [],
+                page: 0,
+                size: 20,
+                totalElements: 0,
+                totalPages: 0,
+                first: true,
+                last: true,
+              }),
+          },
+        },
         {
           provide: ServicesApiService,
           useValue: {

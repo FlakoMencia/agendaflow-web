@@ -1,0 +1,66 @@
+<section class="feature-page" aria-labelledby="reschedule-title">
+  <app-page-header
+    title="Reschedule appointment"
+    headingId="reschedule-title"
+    description="Select a new time returned by the availability engine."
+    [breadcrumbs]="['Appointments', 'Reschedule']"
+  />
+  @if (loading()) {
+    <div class="state-panel" role="status">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><strong>Loading appointment</strong>
+    </div>
+  } @else {
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="submit()">
+      <section class="form-section">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="rescheduleDate">New date</label
+            ><input id="rescheduleDate" type="date" formControlName="date" (change)="refresh()" />
+          </div>
+          <div class="form-field">
+            <label for="rescheduleSpecialist">Specialist</label
+            ><select id="rescheduleSpecialist" formControlName="specialistId" (change)="refresh()">
+              <option [ngValue]="null">Any compatible specialist</option>
+              @for (s of specialists(); track s.id) {
+                <option [ngValue]="s.id">{{ s.professionalName }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field form-field--wide">
+            <label for="reason">Reason (optional)</label
+            ><textarea id="reason" rows="3" formControlName="reason" maxlength="10000"></textarea>
+          </div>
+        </div>
+      </section>
+      @if (error(); as e) {
+        <p-message severity="error">{{ e.message }}</p-message>
+      }
+      @if (slotsLoading()) {
+        <p role="status">Checking live availability…</p>
+      } @else {
+        <div class="slot-grid" role="list" aria-label="Available replacement times">
+          @for (slot of slots(); track slot.start + '-' + slot.specialistId) {
+            <button
+              type="button"
+              class="slot-option"
+              [class.slot-option--selected]="selected() === slot"
+              [attr.aria-pressed]="selected() === slot"
+              (click)="select(slot)"
+            >
+              <strong>{{ time(slot.start) }}</strong
+              ><small>{{ name(slot.specialistId) }}</small>
+            </button>
+          } @empty {
+            <p>No replacement times are available for this selection.</p>
+          }
+        </div>
+      }
+      <div class="form-actions">
+        <a pButton [routerLink]="['/appointments', id]" class="secondary-action">Cancel</a
+        ><button pButton type="submit" class="primary-action" [disabled]="!selected() || saving()">
+          {{ saving() ? 'Rescheduling…' : 'Confirm new time' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

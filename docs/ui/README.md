@@ -11,4 +11,6 @@ textuales además del color y controles utilizables con teclado. Las transicione
 
 - [Servicios y especialistas](services-and-specialists.md)
 - [Disponibilidad y bloqueos](availability.md)
+- [Clientes](customers.md)
+- [Citas](appointments.md)
 - [Autenticación](authentication.md)
