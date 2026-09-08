@@ -2,8 +2,7 @@
   "name": "agendaflow-web",
   "version": "0.0.0",
   "engines": {
-    "node": "24.18.1",
-    "npm": "11.16.0"
+    "node": "24"
   },
   "scripts": {
     "ng": "ng",
